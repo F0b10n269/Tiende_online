@@ -1,0 +1,48 @@
+{% extends 'tienda/base.html' %}
+
+{% block content %}
+<div style="max-width: 800px; margin: 0 auto;">
+    <a href="{% url 'tienda:catalogo' %}" class="btn" style="margin-bottom: 2rem;">← Volver al catálogo</a>
+    
+    <div class="card">
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem;">
+            <div>
+                {% if producto.imagen_1 %}
+                <img src="{{ producto.imagen_1.url }}" alt="{{ producto.nombre }}" 
+                     style="width: 100%; border-radius: 10px; margin-bottom: 1rem;">
+                {% endif %}
+                
+                <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.5rem;">
+                    {% if producto.imagen_2 %}
+                    <img src="{{ producto.imagen_2.url }}" alt="{{ producto.nombre }}" 
+                         style="width: 100%; border-radius: 5px;">
+                    {% endif %}
+                    {% if producto.imagen_3 %}
+                    <img src="{{ producto.imagen_3.url }}" alt="{{ producto.nombre }}" 
+                         style="width: 100%; border-radius: 5px;">
+                    {% endif %}
+                </div>
+            </div>
+            
+            <div>
+                <h1 style="margin-bottom: 1rem;">{{ producto.nombre }}</h1>
+                <p style="color: #667eea; font-weight: bold; font-size: 1.5rem; margin-bottom: 1rem;">
+                    ${{ producto.precio_base }}
+                </p>
+                <p style="color: #666; margin-bottom: 1rem;">
+                    <strong>Categoría:</strong> {{ producto.categoria.nombre }}
+                </p>
+                <div style="margin-bottom: 2rem;">
+                    <h3>Descripción:</h3>
+                    <p style="color: #666; line-height: 1.6;">{{ producto.descripcion }}</p>
+                </div>
+                
+                <a href="{% url 'tienda:solicitar_pedido' %}?producto={{ producto.id }}" 
+                   class="btn" style="width: 100%; text-align: center; background: #28a745; font-size: 1.1rem;">
+                    Solicitar Producto Personalizado
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

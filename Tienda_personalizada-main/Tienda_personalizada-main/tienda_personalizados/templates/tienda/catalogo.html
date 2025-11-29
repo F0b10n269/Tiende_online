@@ -1,0 +1,74 @@
+{% extends 'tienda/base.html' %}
+
+{% block content %}
+<h1 style="margin-bottom: 2rem;">Catálogo de Productos</h1>
+
+<div style="margin-bottom: 2rem;">
+    <h3>Filtrar por categoría:</h3>
+    <div style="display: flex; gap: 1rem; flex-wrap: wrap; margin-top: 1rem;">
+        <a href="{% url 'tienda:catalogo' %}" 
+           class="btn" 
+           style="background: {% if not categoria_actual %}#495057{% else %}#667eea{% endif %};">
+            Todas las categorías
+        </a>
+        {% for categoria in categorias %}
+        <a href="{% url 'tienda:catalogo' %}?categoria={{ categoria.id }}" 
+           class="btn" 
+           style="background: {% if categoria_actual == categoria.id|stringformat:'i' %}#495057{% else %}#667eea{% endif %};">
+            {{ categoria.nombre }}
+        </a>
+        {% endfor %}
+    </div>
+</div>
+
+<div class="grid grid-3">
+    {% for producto in productos %}
+    <div class="card">
+        {% if producto.imagen_1 %}
+        <img src="{{ producto.imagen_1.url }}" alt="{{ producto.nombre }}" 
+             style="width: 100%; height: 200px; object-fit: cover; border-radius: 5px; margin-bottom: 1rem;">
+        {% endif %}
+        <h3>{{ producto.nombre }}</h3>
+        <p style="color: #667eea; font-weight: bold; font-size: 1.2rem; margin: 0.5rem 0;">
+            ${{ producto.precio_base }}
+        </p>
+        <p style="color: #666; margin-bottom: 1rem;">
+            {{ producto.descripcion|truncatewords:20 }}
+        </p>
+        <div style="display: flex; gap: 0.5rem;">
+            <a href="{% url 'tienda:detalle_producto' producto.id %}" class="btn" style="flex: 1;">
+                Ver Detalles
+            </a>
+            <a href="{% url 'tienda:solicitar_pedido' %}?producto={{ producto.id }}" 
+               class="btn" style="flex: 1; background: #28a745;">
+                Solicitar
+            </a>
+        </div>
+    </div>
+    {% empty %}
+    <p style="text-align: center; grid-column: 1 / -1; color: #666;">
+        No hay productos disponibles en esta categoría.
+    </p>
+    {% endfor %}
+</div>
+
+{% if is_paginated %}
+<div style="display: flex; justify-content: center; margin-top: 2rem; gap: 1rem;">
+    {% if page_obj.has_previous %}
+    <a href="?page={{ page_obj.previous_page_number }}{% if categoria_actual %}&categoria={{ categoria_actual }}{% endif %}" class="btn">
+        Anterior
+    </a>
+    {% endif %}
+    
+    <span style="padding: 0.8rem 1.5rem; background: white; border-radius: 5px;">
+        Página {{ page_obj.number }} de {{ page_obj.paginator.num_pages }}
+    </span>
+    
+    {% if page_obj.has_next %}
+    <a href="?page={{ page_obj.next_page_number }}{% if categoria_actual %}&categoria={{ categoria_actual }}{% endif %}" class="btn">
+        Siguiente
+    </a>
+    {% endif %}
+</div>
+{% endif %}
+{% endblock %}
