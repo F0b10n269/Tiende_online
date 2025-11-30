@@ -4,6 +4,7 @@ from .models import Producto, Categoria, Pedido
 from .forms import SolicitudPedidoForm
 from django.db.models import Q  
 
+
 def index(request):
     # ✅ Productos destacados (máximo 6)
     productos_destacados = Producto.objects.filter(activo=True, destacado=True)[:6]
@@ -21,13 +22,13 @@ def index(request):
 def catalogo(request):
     productos = Producto.objects.filter(activo=True)
     
-    # ✅ Búsqueda por término
+    # ✅ Búsqueda por término - CORREGIDO
     query = request.GET.get('q')
     if query:
         productos = productos.filter(
-            models.Q(nombre__icontains=query) | 
-            models.Q(descripcion__icontains=query) |
-            models.Q(categoria__nombre__icontains=query)
+            Q(nombre__icontains=query) |  # ✅ Usar Q directamente
+            Q(descripcion__icontains=query) |
+            Q(categoria__nombre__icontains=query)
         )
     
     # ✅ Filtrado por categoría
@@ -44,7 +45,8 @@ def catalogo(request):
         'categoria_actual': categoria_id,
         'query': query  # ✅ Pasar la query al template
     })
-
+    
+    
 def detalle_producto(request, pk):
     producto = get_object_or_404(Producto, pk=pk, activo=True)
     return render(request, 'tienda/detalle_producto.html', {'producto': producto})
@@ -113,4 +115,3 @@ def seguimiento_pedido(request, token):
         'pedido': pedido,
         'imagenes_referencia': imagenes_referencia
     })
-
