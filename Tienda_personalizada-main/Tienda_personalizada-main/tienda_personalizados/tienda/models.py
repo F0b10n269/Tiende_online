@@ -155,7 +155,7 @@ class Pedido(models.Model):
 
     def get_absolute_url(self):
         from django.urls import reverse
-        return reverse('seguimiento_pedido', kwargs={'token': self.token_seguimiento})
+        return reverse('tienda:seguimiento_pedido', kwargs={'token': self.token_seguimiento})
 
 
 class ImagenReferencia(models.Model):
