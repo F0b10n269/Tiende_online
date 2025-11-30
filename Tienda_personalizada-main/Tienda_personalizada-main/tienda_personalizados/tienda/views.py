@@ -1,18 +1,16 @@
 from django.shortcuts import render, get_object_or_404, redirect
-from django.views.generic import ListView, DetailView
-from django.views.generic.edit import CreateView
-from django.urls import reverse_lazy, reverse
-from django.db.models import Q
-
+from django.urls import reverse
 from .models import Producto, Categoria, Pedido
 from .forms import SolicitudPedidoForm
 
-# =============================================================================
-# VISTAS BASADAS EN FUNCIÓN (Funcionales)
-# =============================================================================
-
 def index(request):
-    productos_destacados = Producto.objects.filter(activo=True)[:6]
+    # ✅ Productos destacados (máximo 6)
+    productos_destacados = Producto.objects.filter(activo=True, destacado=True)[:6]
+    
+    # ✅ Si no hay productos destacados, mostrar productos normales
+    if not productos_destacados:
+        productos_destacados = Producto.objects.filter(activo=True)[:6]
+    
     categorias = Categoria.objects.all()
     return render(request, 'tienda/index.html', {
         'productos_destacados': productos_destacados,
@@ -21,16 +19,29 @@ def index(request):
 
 def catalogo(request):
     productos = Producto.objects.filter(activo=True)
-    categoria_id = request.GET.get('categoria')
     
+    # ✅ Búsqueda por término
+    query = request.GET.get('q')
+    if query:
+        productos = productos.filter(
+            models.Q(nombre__icontains=query) | 
+            models.Q(descripcion__icontains=query) |
+            models.Q(categoria__nombre__icontains=query)
+        )
+    
+    # ✅ Filtrado por categoría
+    categoria_id = request.GET.get('categoria')
     if categoria_id:
         productos = productos.filter(categoria_id=categoria_id)
     
+    # ✅ Obtener categorías para el filtro
     categorias = Categoria.objects.all()
+    
     return render(request, 'tienda/catalogo.html', {
         'productos': productos,
         'categorias': categorias,
-        'categoria_actual': categoria_id
+        'categoria_actual': categoria_id,
+        'query': query  # ✅ Pasar la query al template
     })
 
 def detalle_producto(request, pk):
@@ -66,7 +77,7 @@ def pedido_exitoso(request):
     
     try:
         pedido = Pedido.objects.get(id=pedido_id)
-        # Usar reverse para generar la URL correctamente
+        # CORREGIR: Usar reverse con el token completo
         url_seguimiento = request.build_absolute_uri(
             reverse('tienda:seguimiento_pedido', kwargs={'token': str(pedido.token_seguimiento)})
         )
@@ -101,77 +112,3 @@ def seguimiento_pedido(request, token):
         'pedido': pedido,
         'imagenes_referencia': imagenes_referencia
     })
-
-# =============================================================================
-# VISTAS BASADAS EN CLASE (Alternativas)
-# =============================================================================
-
-class IndexView(ListView):
-    model = Producto
-    template_name = 'tienda/index.html'
-    context_object_name = 'productos_destacados'
-    
-    def get_queryset(self):
-        return Producto.objects.filter(activo=True)[:6]
-    
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['categorias'] = Categoria.objects.all()
-        return context
-
-class CatalogoView(ListView):
-    model = Producto
-    template_name = 'tienda/catalogo.html'
-    context_object_name = 'productos'
-    paginate_by = 12
-    
-    def get_queryset(self):
-        queryset = Producto.objects.filter(activo=True)
-        categoria_id = self.request.GET.get('categoria')
-        if categoria_id:
-            queryset = queryset.filter(categoria_id=categoria_id)
-        return queryset
-    
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['categorias'] = Categoria.objects.all()
-        context['categoria_actual'] = self.request.GET.get('categoria')
-        return context
-
-class DetalleProductoView(DetailView):
-    model = Producto
-    template_name = 'tienda/detalle_producto.html'
-    context_object_name = 'producto'
-
-class SolicitarPedidoView(CreateView):
-    model = Pedido
-    form_class = SolicitudPedidoForm
-    template_name = 'tienda/solicitar_pedido.html'
-    success_url = reverse_lazy('tienda:pedido_exitoso')
-    
-    def get_initial(self):
-        initial = super().get_initial()
-        producto_id = self.request.GET.get('producto')
-        if producto_id:
-            try:
-                producto = Producto.objects.get(id=producto_id)
-                initial['producto_referencia'] = producto
-            except Producto.DoesNotExist:
-                pass
-        return initial
-    
-    def form_valid(self, form):
-        response = super().form_valid(form)
-        # Guardar el ID del pedido en la sesión para mostrarlo en la página de éxito
-        self.request.session['ultimo_pedido_id'] = self.object.id
-        self.request.session['token_seguimiento'] = str(self.object.token_seguimiento)
-        return response
-
-# =============================================================================
-# FUNCIONES AUXILIARES (Compatibilidad)
-# =============================================================================
-
-def detalle_producto_por_id(request, producto_id):
-    """Versión alternativa que usa producto_id en lugar de pk"""
-    producto = get_object_or_404(Producto, id=producto_id, activo=True)
-    return render(request, 'tienda/detalle_producto.html', {'producto': producto})
