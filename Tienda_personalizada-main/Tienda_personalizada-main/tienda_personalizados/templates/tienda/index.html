@@ -1,25 +1,6 @@
 {% extends 'tienda/base.html' %}
 
 {% block content %}
-<h2>Bienvenido a nuestra tienda</h2>
-<p>Aquí puedes encontrar productos personalizados únicos.</p>
-
-<h3>Productos Destacados</h3>
-{% if productos_destacados %}
-    <div>
-    {% for producto in productos_destacados %}
-        <div style="border: 1px solid #ccc; padding: 10px; margin: 10px;">
-            <h4>{{ producto.nombre }}</h4>
-            <p>Precio: ${{ producto.precio_base }}</p>
-            <a href="{% url 'tienda:detalle_producto' producto.id %}">Ver detalles</a>
-        </div>
-    {% endfor %}
-    </div>
-{% else %}
-    <p>No hay productos disponibles.</p>
-{% endif %}
-{% endblock %}
-
 <section style="text-align: center; margin-bottom: 3rem;">
     <h1 style="font-size: 3rem; margin-bottom: 1rem;">Crea algo único</h1>
     <p style="font-size: 1.2rem; color: #666; margin-bottom: 2rem;">
@@ -46,10 +27,21 @@
 </section>
 
 <section>
-    <h2 style="text-align: center; margin-bottom: 2rem;">Productos Destacados</h2>
+    <div style="text-align: center; margin-bottom: 2rem;">
+        <h2>⭐ Productos Destacados</h2>
+        <p style="color: #666;">Nuestras creaciones más populares</p>
+    </div>
+    
     <div class="grid grid-3">
         {% for producto in productos_destacados %}
-        <div class="card">
+        <div class="card" style="position: relative;">
+            <!-- ✅ BADGE DE DESTACADO -->
+            {% if producto.destacado %}
+            <div style="position: absolute; top: 10px; right: 10px; background: #ffc107; color: #000; padding: 4px 8px; border-radius: 12px; font-size: 0.8rem; font-weight: bold; z-index: 10;">
+                ⭐ Destacado
+            </div>
+            {% endif %}
+            
             {% if producto.imagen_1 %}
             <img src="{{ producto.imagen_1.url }}" alt="{{ producto.nombre }}" 
                  style="width: 100%; height: 200px; object-fit: cover; border-radius: 5px; margin-bottom: 1rem;">
@@ -77,4 +69,11 @@
         </p>
         {% endfor %}
     </div>
+    
+    <div style="text-align: center; margin-top: 2rem;">
+        <a href="{% url 'tienda:catalogo' %}" class="btn" style="background: #6c757d;">
+            Ver todos los productos
+        </a>
+    </div>
 </section>
+{% endblock %}
