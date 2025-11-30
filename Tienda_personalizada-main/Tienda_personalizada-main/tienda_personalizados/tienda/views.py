@@ -2,6 +2,7 @@ from django.shortcuts import render, get_object_or_404, redirect
 from django.urls import reverse
 from .models import Producto, Categoria, Pedido
 from .forms import SolicitudPedidoForm
+from django.db.models import Q  
 
 def index(request):
     # ✅ Productos destacados (máximo 6)
@@ -112,3 +113,4 @@ def seguimiento_pedido(request, token):
         'pedido': pedido,
         'imagenes_referencia': imagenes_referencia
     })
+
