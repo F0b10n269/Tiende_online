@@ -2,7 +2,6 @@ from django.contrib import admin
 from django.utils.html import format_html
 from django.urls import reverse
 from django.utils.http import urlencode
-from django.db.models import F
 from .models import Categoria, Producto, Insumo, Pedido, ImagenReferencia
 
 @admin.register(Categoria)
@@ -54,8 +53,8 @@ class PedidoAdmin(admin.ModelAdmin):
     list_display = [
         'id', 
         'nombre_cliente', 
-        'estado_pedido',  # ✅ Para list_editable
-        'estado_pago',    # ✅ Para list_editable
+        'estado_pedido',  # ✅ Agregado directamente para list_editable
+        'estado_pago',    # ✅ Agregado directamente para list_editable
         'estado_pedido_badge', 
         'estado_pago_badge', 
         'plataforma_badge',
@@ -232,227 +231,56 @@ class PedidoAdmin(admin.ModelAdmin):
 class InsumoAdmin(admin.ModelAdmin):
     list_display = [
         'nombre', 
-        'tipo_badge', 
+        'tipo', 
         'cantidad_disponible', 
-        'cantidad_minima',
-        'unidad_badge', 
-        'estado_inventario_badge', 
-        'necesita_reposicion_badge',
-        'marca',
-        'color_display',
-        'fecha_actualizacion_short'
+        'unidad', 
+        'estado_stock', 
+        'necesita_reposicion'
     ]
     
     list_filter = [
         'tipo', 
-        'unidad', 
-        'marca',
-        'necesita_reposicion_filter'
+        'unidad'
     ]
     
     search_fields = [
-        'nombre', 
-        'marca', 
-        'color',
-        'tipo'
+        'nombre'
     ]
     
     list_editable = [
-        'cantidad_disponible', 
-        'cantidad_minima'
+        'cantidad_disponible'
     ]
     
-    readonly_fields = [
-        'fecha_actualizacion',
-        'estado_inventario_display',
-        'necesita_reposicion_display'
-    ]
-    
-    fieldsets = (
-        ('Información Básica del Insumo', {
-            'fields': (
-                'nombre',
-                'tipo',
-                'marca',
-                'color',
-                'activo'
-            )
-        }),
-        
-        ('Control de Inventario', {
-            'fields': (
-                'cantidad_disponible',
-                'cantidad_minima', 
-                'unidad',
-                'precio_unitario',
-                'estado_inventario_display',
-                'necesita_reposicion_display'
-            )
-        }),
-        
-        ('Metadatos', {
-            'fields': (
-                'fecha_actualizacion',
-            ),
-            'classes': ('collapse',)
-        }),
-    )
-    
-    # Acciones personalizadas para inventario
-    actions = [
-        'reponer_stock_minimo',
-        'incrementar_stock_10',
-        'incrementar_stock_50',
-        'marcar_como_inactivos_agotados'
-    ]
-    
-    def reponer_stock_minimo(self, request, queryset):
-        """Repone el stock al nivel mínimo establecido"""
-        for insumo in queryset:
-            if insumo.cantidad_disponible < insumo.cantidad_minima:
-                cantidad_reponer = insumo.cantidad_minima * 2
-                insumo.cantidad_disponible = cantidad_reponer
-                insumo.save()
-        
-        self.message_user(
-            request, 
-            f"✅ Stock repuesto para {queryset.count()} insumos que estaban bajo mínimo"
-        )
-    reponer_stock_minimo.short_description = "🔄 Reponer stock al doble del mínimo"
-    
-    def incrementar_stock_10(self, request, queryset):
-        """Incrementa el stock en 10 unidades"""
-        for insumo in queryset:
-            insumo.cantidad_disponible += 10
-            insumo.save()
-        
-        self.message_user(
-            request, 
-            f"📈 Stock incrementado en 10 unidades para {queryset.count()} insumos"
-        )
-    incrementar_stock_10.short_description = "➕ Incrementar stock +10 unidades"
-    
-    def incrementar_stock_50(self, request, queryset):
-        """Incrementa el stock en 50 unidades"""
-        for insumo in queryset:
-            insumo.cantidad_disponible += 50
-            insumo.save()
-        
-        self.message_user(
-            request, 
-            f"📈 Stock incrementado en 50 unidades para {queryset.count()} insumos"
-        )
-    incrementar_stock_50.short_description = "➕ Incrementar stock +50 unidades"
-    
-    def marcar_como_inactivos_agotados(self, request, queryset):
-        """Marca como inactivos los insumos agotados"""
-        insumos_agotados = queryset.filter(cantidad_disponible=0)
-        count = insumos_agotados.update(activo=False)
-        
-        self.message_user(
-            request, 
-            f"🔴 {count} insumos agotados marcados como inactivos"
-        )
-    marcar_como_inactivos_agotados.short_description = "🚫 Marcar insumos agotados como inactivos"
-    
-    # Filtros personalizados
-    def necesita_reposicion_filter(self, queryset, name, value):
-        if value == 'si':
-            return queryset.filter(cantidad_disponible__lte=F('cantidad_minima'))
-        elif value == 'no':
-            return queryset.filter(cantidad_disponible__gt=F('cantidad_minima'))
-        return queryset
-    necesita_reposicion_filter.parameter_name = 'necesita_reposicion'
-    necesita_reposicion_filter.title = '¿Necesita reposición?'
-    
-    # Métodos para display en lista
-    def tipo_badge(self, obj):
-        colors = {
-            'tela': '#e91e63',
-            'filamento': '#9c27b0',
-            'tazas': '#2196f3',
-            'accesorios': '#4caf50',
-            'otros': '#607d8b'
-        }
-        return format_html(
-            '<span style="background: {}; color: white; padding: 4px 8px; border-radius: 12px; font-size: 11px; font-weight: bold;">{}</span>',
-            colors.get(obj.tipo, '#607d8b'),
-            obj.get_tipo_display().upper()
-        )
-    tipo_badge.short_description = 'Tipo'
-    
-    def unidad_badge(self, obj):
-        return format_html(
-            '<span style="background: #17a2b8; color: white; padding: 4px 8px; border-radius: 12px; font-size: 11px; font-weight: bold;">{}</span>',
-            obj.get_unidad_display()
-        )
-    unidad_badge.short_description = 'Unidad'
-    
-    def estado_inventario_badge(self, obj):
-        estado = obj.get_estado_inventario()
-        if estado == "agotado":
-            return format_html(
-                '<span style="background: #dc3545; color: white; padding: 4px 8px; border-radius: 12px; font-size: 11px; font-weight: bold;">🔴 AGOTADO</span>'
-            )
-        elif estado == "bajo":
-            return format_html(
-                '<span style="background: #ffc107; color: black; padding: 4px 8px; border-radius: 12px; font-size: 11px; font-weight: bold;">🟡 BAJO STOCK</span>'
-            )
+    def estado_stock(self, obj):
+        # Usar el método del modelo si existe, sino usar lógica básica
+        if hasattr(obj, 'get_estado_inventario'):
+            estado = obj.get_estado_inventario()
         else:
-            return format_html(
-                '<span style="background: #28a745; color: white; padding: 4px 8px; border-radius: 12px; font-size: 11px; font-weight: bold;">🟢 NORMAL</span>'
-            )
-    estado_inventario_badge.short_description = 'Estado Inventario'
-    
-    def necesita_reposicion_badge(self, obj):
-        if obj.necesita_reposicion():
-            return format_html(
-                '<span style="background: #dc3545; color: white; padding: 4px 8px; border-radius: 12px; font-size: 11px; font-weight: bold;">🚨 REPONER</span>'
-            )
-        return format_html(
-            '<span style="background: #28a745; color: white; padding: 4px 8px; border-radius: 12px; font-size: 11px; font-weight: bold;">✅ OK</span>'
-        )
-    necesita_reposicion_badge.short_description = 'Reponer'
-    
-    def color_display(self, obj):
-        if obj.color:
-            return format_html(
-                '<span style="display: inline-block; width: 20px; height: 20px; background: {}; border: 1px solid #ccc; border-radius: 3px;" title="{}"></span> {}',
-                obj.color.lower(),
-                obj.color,
-                obj.color
-            )
-        return "-"
-    color_display.short_description = 'Color'
-    
-    def fecha_actualizacion_short(self, obj):
-        return obj.fecha_actualizacion.strftime("%d/%m/%Y")
-    fecha_actualizacion_short.short_description = 'Última Actualización'
-    
-    # Métodos para campos de solo lectura
-    def estado_inventario_display(self, obj):
-        estado = obj.get_estado_inventario()
+            # Lógica básica si el método no existe
+            if obj.cantidad_disponible == 0:
+                estado = "agotado"
+            elif obj.cantidad_disponible < 10:
+                estado = "bajo"
+            else:
+                estado = "normal"
+        
         if estado == "agotado":
-            return format_html('<span style="color: #dc3545; font-weight: bold;">🔴 AGOTADO - Stock: 0 unidades</span>')
+            return format_html('<span style="color: red; font-weight: bold;">⏹️ AGOTADO</span>')
         elif estado == "bajo":
-            return format_html('<span style="color: #ffc107; font-weight: bold;">🟡 BAJO STOCK - Solo {} unidades disponibles</span>', obj.cantidad_disponible)
+            return format_html('<span style="color: orange; font-weight: bold;">⚠️ BAJO STOCK</span>')
         else:
-            return format_html('<span style="color: #28a745; font-weight: bold;">🟢 STOCK NORMAL - {} unidades disponibles</span>', obj.cantidad_disponible)
-    estado_inventario_display.short_description = 'Estado Actual del Inventario'
+            return format_html('<span style="color: green; font-weight: bold;">✅ EN STOCK</span>')
+    estado_stock.short_description = 'Estado Stock'
     
-    def necesita_reposicion_display(self, obj):
-        if obj.necesita_reposicion():
-            return format_html(
-                '<span style="color: #dc3545; font-weight: bold;">🚨 NECESITA REPOSICIÓN URGENTE! (Mínimo: {}, Actual: {})</span>',
-                obj.cantidad_minima,
-                obj.cantidad_disponible
-            )
-        return format_html(
-            '<span style="color: #28a745; font-weight: bold;">✅ Stock suficiente (Mínimo: {}, Actual: {})</span>',
-            obj.cantidad_minima,
-            obj.cantidad_disponible
-        )
-    necesita_reposicion_display.short_description = 'Alerta de Reposición'
+    def necesita_reposicion(self, obj):
+        # Usar el método del modelo si existe, sino usar lógica básica
+        if hasattr(obj, 'necesita_reposicion'):
+            return obj.necesita_reposicion()
+        else:
+            # Lógica básica si el método no existe
+            return obj.cantidad_disponible < 5
+    necesita_reposicion.boolean = True
+    necesita_reposicion.short_description = '¿Reponer?'
 
 # Configuración del sitio admin
 admin.site.site_header = "🎨 Administración - Tienda Personalizados"
