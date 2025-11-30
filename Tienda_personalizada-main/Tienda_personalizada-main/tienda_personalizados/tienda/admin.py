@@ -25,10 +25,10 @@ class CategoriaAdmin(admin.ModelAdmin):
 
 @admin.register(Producto)
 class ProductoAdmin(admin.ModelAdmin):
-    list_display = ['nombre', 'categoria', 'precio_base', 'activo', 'imagen_preview']
-    list_filter = ['categoria', 'activo']
+    list_display = ['nombre', 'categoria', 'precio_base', 'activo', 'destacado', 'imagen_preview']
+    list_filter = ['categoria', 'activo', 'destacado']  # ✅ Agregar filtro por destacado
     search_fields = ['nombre', 'descripcion']
-    list_editable = ['activo', 'precio_base']
+    list_editable = ['activo', 'precio_base', 'destacado']  # ✅ Poder editar destacado directamente
     
     def imagen_preview(self, obj):
         if obj.imagen_1:
