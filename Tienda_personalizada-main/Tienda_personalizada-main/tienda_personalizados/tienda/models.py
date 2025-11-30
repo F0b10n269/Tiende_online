@@ -13,13 +13,13 @@ class Categoria(models.Model):
     def __str__(self):
         return self.nombre
 
-
 class Producto(models.Model):
     nombre = models.CharField(max_length=200)
     descripcion = models.TextField()
     categoria = models.ForeignKey(Categoria, on_delete=models.CASCADE)
     precio_base = models.DecimalField(max_digits=10, decimal_places=2)
     activo = models.BooleanField(default=True)
+    destacado = models.BooleanField(default=False, verbose_name="Producto destacado")  # ✅ NUEVO CAMPO
     imagen_1 = models.ImageField(upload_to='productos/', blank=True, null=True)
     imagen_2 = models.ImageField(upload_to='productos/', blank=True, null=True)
     imagen_3 = models.ImageField(upload_to='productos/', blank=True, null=True)
@@ -27,59 +27,31 @@ class Producto(models.Model):
     class Meta:
         verbose_name = "Producto"
         verbose_name_plural = "Productos"
+        ordering = ['-destacado', 'nombre']  # ✅ Ordenar por destacado primero
     
     def __str__(self):
         return self.nombre
 
 
 class Insumo(models.Model):
-    TIPOS_INSUMO = [
-        ('tela', 'Tela'),
-        ('filamento', 'Filamento 3D'),
-        ('tazas', 'Tazas en blanco'),
-        ('accesorios', 'Accesorios'),
-        ('otros', 'Otros'),
-    ]
-    
-    UNIDADES = [
-        ('metros', 'Metros'),
+    TIPOS_UNIDAD = [
         ('unidades', 'Unidades'),
-        ('kg', 'Kilogramos'),
-        ('rollos', 'Rollos'),
+        ('metros', 'Metros'),
         ('litros', 'Litros'),
+        ('kilos', 'Kilos'),
     ]
     
-    nombre = models.CharField(max_length=100, verbose_name="Nombre del insumo")
-    tipo = models.CharField(max_length=20, choices=TIPOS_INSUMO, verbose_name="Tipo de insumo")
-    cantidad_disponible = models.IntegerField(default=0, verbose_name="Cantidad disponible")
-    cantidad_minima = models.IntegerField(default=10, verbose_name="Cantidad mínima")
-    unidad = models.CharField(max_length=20, choices=UNIDADES, default='unidades', verbose_name="Unidad de medida")
-    marca = models.CharField(max_length=50, blank=True, verbose_name="Marca")
-    color = models.CharField(max_length=30, blank=True, verbose_name="Color")
-    precio_unitario = models.DecimalField(max_digits=10, decimal_places=2, default=0, verbose_name="Precio unitario")
-    activo = models.BooleanField(default=True, verbose_name="Activo")
-    fecha_actualizacion = models.DateTimeField(auto_now=True, verbose_name="Fecha de actualización")
+    nombre = models.CharField(max_length=200)
+    tipo = models.CharField(max_length=100)
+    cantidad_disponible = models.IntegerField()
+    unidad = models.CharField(max_length=20, choices=TIPOS_UNIDAD, default='unidades')
     
     class Meta:
         verbose_name = "Insumo"
         verbose_name_plural = "Insumos"
-        ordering = ['tipo', 'nombre']
     
     def __str__(self):
-        return f"{self.nombre} - {self.marca} ({self.cantidad_disponible} {self.unidad})"
-    
-    def necesita_reposicion(self):
-        """Verifica si el insumo necesita reposición"""
-        return self.cantidad_disponible <= self.cantidad_minima
-    
-    def get_estado_inventario(self):
-        """Retorna el estado del inventario"""
-        if self.cantidad_disponible == 0:
-            return "agotado"
-        elif self.necesita_reposicion():
-            return "bajo"
-        else:
-            return "normal"
+        return f"{self.nombre} ({self.cantidad_disponible} {self.unidad})"
 
 
 class Pedido(models.Model):
@@ -155,7 +127,7 @@ class Pedido(models.Model):
 
     def get_absolute_url(self):
         from django.urls import reverse
-        return reverse('tienda:seguimiento_pedido', kwargs={'token': self.token_seguimiento})
+        return reverse('seguimiento_pedido', kwargs={'token': self.token_seguimiento})
 
 
 class ImagenReferencia(models.Model):
