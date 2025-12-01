@@ -25,10 +25,10 @@ class CategoriaAdmin(admin.ModelAdmin):
 
 @admin.register(Producto)
 class ProductoAdmin(admin.ModelAdmin):
-    list_display = ['nombre', 'categoria', 'precio_base', 'activo', 'destacado', 'imagen_preview']
-    list_filter = ['categoria', 'activo', 'destacado']  # ✅ Agregar filtro por destacado
+    list_display = ['nombre', 'categoria', 'precio_base', 'activo', 'imagen_preview']
+    list_filter = ['categoria', 'activo']
     search_fields = ['nombre', 'descripcion']
-    list_editable = ['activo', 'precio_base', 'destacado']  # ✅ Poder editar destacado directamente
+    list_editable = ['activo', 'precio_base']
     
     def imagen_preview(self, obj):
         if obj.imagen_1:
@@ -229,56 +229,22 @@ class PedidoAdmin(admin.ModelAdmin):
 
 @admin.register(Insumo)
 class InsumoAdmin(admin.ModelAdmin):
-    list_display = [
-        'nombre', 
-        'tipo', 
-        'cantidad_disponible', 
-        'unidad', 
-        'estado_stock', 
-        'necesita_reposicion'
-    ]
-    
-    list_filter = [
-        'tipo', 
-        'unidad'
-    ]
-    
-    search_fields = [
-        'nombre'
-    ]
-    
-    list_editable = [
-        'cantidad_disponible'
-    ]
+    list_display = ['nombre', 'tipo', 'cantidad_disponible', 'unidad', 'estado_stock', 'necesita_reposicion']
+    list_filter = ['tipo', 'unidad']
+    search_fields = ['nombre']
+    list_editable = ['cantidad_disponible']
     
     def estado_stock(self, obj):
-        # Usar el método del modelo si existe, sino usar lógica básica
-        if hasattr(obj, 'get_estado_inventario'):
-            estado = obj.get_estado_inventario()
-        else:
-            # Lógica básica si el método no existe
-            if obj.cantidad_disponible == 0:
-                estado = "agotado"
-            elif obj.cantidad_disponible < 10:
-                estado = "bajo"
-            else:
-                estado = "normal"
-        
-        if estado == "agotado":
-            return format_html('<span style="color: red; font-weight: bold;">⏹️ AGOTADO</span>')
-        elif estado == "bajo":
+        if obj.cantidad_disponible == 0:
+            return format_html('<span style="color: red; font-weight: bold;">⏹️ SIN STOCK</span>')
+        elif obj.cantidad_disponible < 10:
             return format_html('<span style="color: orange; font-weight: bold;">⚠️ BAJO STOCK</span>')
         else:
             return format_html('<span style="color: green; font-weight: bold;">✅ EN STOCK</span>')
     estado_stock.short_description = 'Estado Stock'
     
     def necesita_reposicion(self, obj):
-        # Usar el método del modelo si existe, sino usar lógica básica
-        if hasattr(obj, 'necesita_reposicion'):
-            return obj.necesita_reposicion()
-        else:
-            # Lógica básica si el método no existe
-            return obj.cantidad_disponible < 5
+        return obj.cantidad_disponible < 5
     necesita_reposicion.boolean = True
     necesita_reposicion.short_description = '¿Reponer?'
 
