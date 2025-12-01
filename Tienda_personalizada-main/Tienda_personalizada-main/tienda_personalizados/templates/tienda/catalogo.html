@@ -3,16 +3,48 @@
 {% block content %}
 <h1 style="margin-bottom: 2rem;">Catálogo de Productos</h1>
 
+<!-- BUSCADOR - AGREGAR ESTO AL PRINCIPIO -->
+<form method="get" style="margin-bottom: 2rem; display: flex; gap: 0.5rem; align-items: center;">
+    <input type="text" 
+           name="q" 
+           placeholder="🔍 Buscar productos por nombre o descripción..." 
+           value="{{ busqueda|default:'' }}"
+           style="flex: 1; padding: 0.8rem; border: 1px solid #ddd; border-radius: 5px; font-size: 1rem;">
+    <button type="submit" 
+            class="btn" 
+            style="padding: 0.8rem 1.5rem; background: #495057; border: none;">
+        Buscar
+    </button>
+    {% if busqueda %}
+    <a href="{% url 'tienda:catalogo' %}{% if categoria_actual %}?categoria={{ categoria_actual }}{% endif %}" 
+       class="btn" 
+       style="background: #6c757d;">
+        Limpiar
+    </a>
+    {% endif %}
+</form>
+
+{% if busqueda %}
+<div style="background: #e9ecef; padding: 1rem; border-radius: 5px; margin-bottom: 1rem;">
+    <p style="margin: 0;">
+        Resultados para: <strong>"{{ busqueda }}"</strong>
+        <span style="color: #666; margin-left: 1rem;">
+            ({{ productos.count }} producto{{ productos.count|pluralize }} encontrado{{ productos.count|pluralize:"s" }})
+        </span>
+    </p>
+</div>
+{% endif %}
+
 <div style="margin-bottom: 2rem;">
     <h3>Filtrar por categoría:</h3>
     <div style="display: flex; gap: 1rem; flex-wrap: wrap; margin-top: 1rem;">
-        <a href="{% url 'tienda:catalogo' %}" 
+        <a href="{% url 'tienda:catalogo' %}{% if busqueda %}?q={{ busqueda }}{% endif %}" 
            class="btn" 
            style="background: {% if not categoria_actual %}#495057{% else %}#667eea{% endif %};">
             Todas las categorías
         </a>
         {% for categoria in categorias %}
-        <a href="{% url 'tienda:catalogo' %}?categoria={{ categoria.id }}" 
+        <a href="{% url 'tienda:catalogo' %}?categoria={{ categoria.id }}{% if busqueda %}&q={{ busqueda }}{% endif %}" 
            class="btn" 
            style="background: {% if categoria_actual == categoria.id|stringformat:'i' %}#495057{% else %}#667eea{% endif %};">
             {{ categoria.nombre }}
@@ -46,8 +78,12 @@
         </div>
     </div>
     {% empty %}
-    <p style="text-align: center; grid-column: 1 / -1; color: #666;">
+    <p style="text-align: center; grid-column: 1 / -1; color: #666; padding: 2rem;">
+        {% if busqueda %}
+        No se encontraron productos para "{{ busqueda }}"
+        {% else %}
         No hay productos disponibles en esta categoría.
+        {% endif %}
     </p>
     {% endfor %}
 </div>
@@ -55,7 +91,8 @@
 {% if is_paginated %}
 <div style="display: flex; justify-content: center; margin-top: 2rem; gap: 1rem;">
     {% if page_obj.has_previous %}
-    <a href="?page={{ page_obj.previous_page_number }}{% if categoria_actual %}&categoria={{ categoria_actual }}{% endif %}" class="btn">
+    <a href="?page={{ page_obj.previous_page_number }}{% if categoria_actual %}&categoria={{ categoria_actual }}{% endif %}{% if busqueda %}&q={{ busqueda }}{% endif %}" 
+       class="btn">
         Anterior
     </a>
     {% endif %}
@@ -65,7 +102,8 @@
     </span>
     
     {% if page_obj.has_next %}
-    <a href="?page={{ page_obj.next_page_number }}{% if categoria_actual %}&categoria={{ categoria_actual }}{% endif %}" class="btn">
+    <a href="?page={{ page_obj.next_page_number }}{% if categoria_actual %}&categoria={{ categoria_actual }}{% endif %}{% if busqueda %}&q={{ busqueda }}{% endif %}" 
+       class="btn">
         Siguiente
     </a>
     {% endif %}
