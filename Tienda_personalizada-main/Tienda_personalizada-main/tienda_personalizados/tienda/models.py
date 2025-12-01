@@ -13,7 +13,6 @@ class Categoria(models.Model):
     def __str__(self):
         return self.nombre
 
-
 class Producto(models.Model):
     nombre = models.CharField(max_length=200)
     descripcion = models.TextField()
@@ -30,7 +29,6 @@ class Producto(models.Model):
     
     def __str__(self):
         return self.nombre
-
 
 class Insumo(models.Model):
     TIPOS_UNIDAD = [
@@ -51,7 +49,6 @@ class Insumo(models.Model):
     
     def __str__(self):
         return f"{self.nombre} ({self.cantidad_disponible} {self.unidad})"
-
 
 class Pedido(models.Model):
     ESTADOS_PEDIDO = [
@@ -95,15 +92,8 @@ class Pedido(models.Model):
     estado_pedido = models.CharField(max_length=20, choices=ESTADOS_PEDIDO, default='solicitado')
     estado_pago = models.CharField(max_length=20, choices=ESTADOS_PAGO, default='pendiente')
     
-    # Token de seguimiento (ahora con nombre más amigable)
-    token_seguimiento = models.CharField(
-        "Token de seguimiento",
-        max_length=12,
-        unique=True,
-        editable=False,
-        blank=True
-    )
-
+    # Seguimiento
+    token_seguimiento = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)
     fecha_creacion = models.DateTimeField(default=timezone.now)
     fecha_actualizacion = models.DateTimeField(auto_now=True)
     
@@ -118,16 +108,10 @@ class Pedido(models.Model):
     
     def __str__(self):
         return f"Pedido #{self.id} - {self.nombre_cliente}"
-
-    def save(self, *args, **kwargs):
-        if not self.token_seguimiento:
-            self.token_seguimiento = uuid.uuid4().hex[:12]
-        super().save(*args, **kwargs)
-
+    
     def get_absolute_url(self):
         from django.urls import reverse
         return reverse('seguimiento_pedido', kwargs={'token': self.token_seguimiento})
-
 
 class ImagenReferencia(models.Model):
     pedido = models.ForeignKey(Pedido, related_name='imagenes_referencia', on_delete=models.CASCADE)
@@ -141,5 +125,3 @@ class ImagenReferencia(models.Model):
     
     def __str__(self):
         return f"Imagen para {self.pedido}"
-
-
