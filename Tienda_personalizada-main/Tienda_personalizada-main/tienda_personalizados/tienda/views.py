@@ -114,4 +114,3 @@ def seguimiento_pedido(request, token):
         'pedido': pedido,
         'imagenes_referencia': imagenes_referencia
     })
-
