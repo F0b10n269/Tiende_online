@@ -60,10 +60,43 @@ class ProductoAdmin(admin.ModelAdmin):
 # ============================================
 @admin.register(Insumo)
 class InsumoAdmin(admin.ModelAdmin):
-    list_display = ['nombre', 'tipo', 'cantidad_disponible', 'unidad', 'estado_stock']
-    list_filter = ['tipo', 'unidad']
-    search_fields = ['nombre', 'tipo']
-    list_editable = ['cantidad_disponible']
+    # ✅ ACTUALIZADO: Agregar marca y color
+    list_display = [
+        'nombre', 
+        'tipo', 
+        'cantidad_disponible', 
+        'unidad', 
+        'marca',      # ✅ NUEVO
+        'color',      # ✅ NUEVO
+        'estado_stock'
+    ]
+    
+    # ✅ ACTUALIZADO: Agregar marca a los filtros
+    list_filter = ['tipo', 'unidad', 'marca']
+    
+    # ✅ ACTUALIZADO: Agregar marca y color a la búsqueda
+    search_fields = ['nombre', 'tipo', 'marca', 'color']
+    
+    # ✅ ACTUALIZADO: Hacer la marca editable desde la lista
+    list_editable = ['cantidad_disponible', 'marca']
+    
+    # ✅ AGREGADO: Organizar el formulario
+    fieldsets = (
+        ('Información Básica', {
+            'fields': (
+                'nombre',
+                'tipo',
+                'marca',      # ✅ NUEVO
+                'color',      # ✅ NUEVO
+            )
+        }),
+        ('Control de Inventario', {
+            'fields': (
+                'cantidad_disponible',
+                'unidad',
+            )
+        }),
+    )
     
     def estado_stock(self, obj):
         if obj.cantidad_disponible == 0:
