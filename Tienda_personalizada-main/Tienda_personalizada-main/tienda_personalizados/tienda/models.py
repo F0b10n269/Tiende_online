@@ -79,8 +79,8 @@ class Pedido(models.Model):
     # Información del cliente
     nombre_cliente = models.CharField(max_length=200)
     email = models.EmailField()
-    telefono = models.CharField(max_length=20, blank=True)
-    red_social = models.CharField(max_length=100, blank=True)
+    telefono = models.CharField(max_length=20, blank=True, default="")
+    red_social = models.CharField(max_length=100, blank=True, default="")
     
     # Información del pedido
     producto_referencia = models.ForeignKey(Producto, on_delete=models.SET_NULL, null=True, blank=True)
@@ -92,14 +92,14 @@ class Pedido(models.Model):
     estado_pedido = models.CharField(max_length=20, choices=ESTADOS_PEDIDO, default='solicitado')
     estado_pago = models.CharField(max_length=20, choices=ESTADOS_PAGO, default='pendiente')
     
-    # Seguimiento
+    # Token de seguimiento
     token_seguimiento = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)
     fecha_creacion = models.DateTimeField(default=timezone.now)
     fecha_actualizacion = models.DateTimeField(auto_now=True)
     
     # Funcionalidad extra: Presupuesto
     presupuesto_aprobado = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
-    notas_internas = models.TextField(blank=True)
+    notas_internas = models.TextField(blank=True, default="")  # ✅ CORREGIDO
     
     class Meta:
         verbose_name = "Pedido"
