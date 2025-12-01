@@ -1,129 +1,53 @@
-{% extends 'tienda/base.html' %}
+{% extends "tienda/base.html" %}
 
 {% block content %}
-<div style="max-width: 800px; margin: 0 auto;">
-    <a href="{% url 'tienda:index' %}" class="btn" style="margin-bottom: 2rem;">← Volver al Inicio</a>
-    
-    <div class="card">
-        <h1 style="text-align: center; margin-bottom: 2rem; color: #667eea;">
-            📦 Seguimiento de tu Pedido
-        </h1>
-        
-        <!-- Información del Pedido -->
-        <div style="background: #f8f9fa; padding: 1.5rem; border-radius: 10px; margin-bottom: 2rem;">
-            <h3 style="margin-bottom: 1rem;">Información del Pedido</h3>
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
-                <div>
-                    <p><strong>Cliente:</strong> {{ pedido.nombre_cliente }}</p>
-                    <p><strong>Email:</strong> {{ pedido.email }}</p>
-                    <p><strong>Teléfono:</strong> {{ pedido.telefono|default:"No proporcionado" }}</p>
-                </div>
-                <div>
-                    <p><strong>Fecha de solicitud:</strong> {{ pedido.fecha_creacion|date:"d/m/Y" }}</p>
-                    <p><strong>Fecha requerida:</strong> {{ pedido.fecha_requerida|date:"d/m/Y"|default:"No especificada" }}</p>
-                    <p><strong>Plataforma:</strong> {{ pedido.get_plataforma_display }}</p>
-                </div>
-            </div>
-        </div>
+<div class="container mt-5">
 
-        <!-- Estados del Pedido -->
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; margin-bottom: 2rem;">
-            <div style="text-align: center;">
-                <h3>Estado del Pedido</h3>
-                <div class="estado-pedido estado-{{ pedido.estado_pedido }}" style="font-size: 1.2rem;">
-                    {{ estado_pedido_texto }}
-                </div>
-            </div>
-            <div style="text-align: center;">
-                <h3>Estado del Pago</h3>
-                <div class="estado-pedido estado-{{ pedido.estado_pago }}" style="font-size: 1.2rem;">
-                    {{ estado_pago_texto }}
-                </div>
-            </div>
-        </div>
+    <h2 class="text-center mb-4">Seguimiento de tu Pedido</h2>
 
-        <!-- Descripción del Diseño -->
-        <div style="margin-bottom: 2rem;">
-            <h3>Descripción del Diseño Solicitado</h3>
-            <div style="background: white; padding: 1rem; border-radius: 5px; border: 1px solid #ddd;">
-                {{ pedido.descripcion_diseno|linebreaks }}
-            </div>
-        </div>
+    <div class="card shadow">
+        <div class="card-body">
 
-        <!-- Producto de Referencia -->
-        {% if pedido.producto_referencia %}
-        <div style="margin-bottom: 2rem;">
-            <h3>Producto de Referencia</h3>
-            <div style="display: flex; align-items: center; gap: 1rem; background: white; padding: 1rem; border-radius: 5px; border: 1px solid #ddd;">
-                {% if pedido.producto_referencia.imagen_1 %}
-                <img src="{{ pedido.producto_referencia.imagen_1.url }}" 
-                     alt="{{ pedido.producto_referencia.nombre }}" 
-                     style="width: 80px; height: 80px; object-fit: cover; border-radius: 5px;">
-                {% endif %}
-                <div>
-                    <strong>{{ pedido.producto_referencia.nombre }}</strong>
-                    <p style="color: #666; margin: 0;">{{ pedido.producto_referencia.categoria.nombre }}</p>
-                    <p style="color: #667eea; font-weight: bold; margin: 0;">
-                        ${{ pedido.producto_referencia.precio_base }}
-                    </p>
+            <h4>Información del Pedido</h4>
+            <p><strong>ID del Pedido:</strong> {{ pedido.id }}</p>
+            <p><strong>Cliente:</strong> {{ pedido.nombre_cliente }}</p>
+            <p><strong>Email:</strong> {{ pedido.email }}</p>
+            <p><strong>Estado del Pedido:</strong> {{ pedido.get_estado_pedido_display }}</p>
+            <p><strong>Estado del Pago:</strong> {{ pedido.get_estado_pago_display }}</p>
+            <p><strong>Plataforma:</strong> {{ pedido.plataforma }}</p>
+            <p><strong>Fecha de creación:</strong> {{ pedido.fecha_creacion }}</p>
+
+            <hr>
+
+            <h4>Descripción del Diseño</h4>
+            <p>{{ pedido.descripcion_diseno }}</p>
+
+            <hr>
+
+            <h4>Imágenes de Referencia</h4>
+            {% if imagenes_referencia %}
+                <div class="row">
+                    {% for img in imagenes_referencia %}
+                        <div class="col-md-4 mb-3">
+                            <img src="{{ img.imagen.url }}" class="img-fluid rounded shadow">
+                            <p class="text-center mt-2">{{ img.descripcion }}</p>
+                        </div>
+                    {% endfor %}
                 </div>
-            </div>
-        </div>
-        {% endif %}
+            {% else %}
+                <p>No se adjuntaron imágenes.</p>
+            {% endif %}
 
-        <!-- Imágenes de Referencia -->
-        {% if imagenes_referencia %}
-        <div style="margin-bottom: 2rem;">
-            <h3>Imágenes de Referencia</h3>
-            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;">
-                {% for imagen in imagenes_referencia %}
-                <div style="text-align: center;">
-                    <img src="{{ imagen.imagen.url }}" 
-                         alt="{{ imagen.descripcion }}" 
-                         style="width: 100%; max-width: 200px; height: 200px; object-fit: cover; border-radius: 10px; border: 2px solid #ddd;">
-                    <p style="margin-top: 0.5rem; color: #666; font-size: 0.9rem;">
-                        {{ imagen.descripcion|default:"Imagen de referencia" }}
-                    </p>
-                    <p style="color: #999; font-size: 0.8rem;">
-                        Subida: {{ imagen.fecha_subida|date:"d/m/Y" }}
-                    </p>
-                </div>
-                {% endfor %}
-            </div>
-        </div>
-        {% else %}
-        <div style="text-align: center; padding: 2rem; background: #f8f9fa; border-radius: 10px; margin-bottom: 2rem;">
-            <p style="color: #666; margin: 0;">📷 No se han subido imágenes de referencia para este pedido.</p>
-        </div>
-        {% endif %}
+            <hr>
 
-        <!-- Información de Contacto -->
-        <div style="background: #e7f3ff; padding: 1.5rem; border-radius: 10px; text-align: center;">
-            <h3 style="color: #004085; margin-bottom: 1rem;">¿Necesitas ayuda con tu pedido?</h3>
-            <p style="color: #004085; margin-bottom: 1rem;">
-                Si tienes alguna pregunta sobre tu pedido, contáctanos:
-            </p>
-            <p style="color: #004085; font-weight: bold;">
-                📧 {{ pedido.email }} 
-                {% if pedido.telefono %}
-                | 📞 {{ pedido.telefono }}
-                {% endif %}
-            </p>
+            <h4>Enlace actual</h4>
+            <div class="alert alert-info">
+                {{ request.build_absolute_uri }}
+            </div>
+
         </div>
     </div>
+
 </div>
-
-<style>
-.estado-solicitado { background: #fff3cd; color: #856404; border: 1px solid #ffeaa7; }
-.estado-aprobado { background: #d1ecf1; color: #0c5460; border: 1px solid #bee5eb; }
-.estado-en_proceso { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
-.estado-realizado { background: #cce7ff; color: #004085; border: 1px solid #b3d7ff; }
-.estado-entregado { background: #e2e3e5; color: #383d41; border: 1px solid #d6d8db; }
-.estado-finalizado { background: #d1e7dd; color: #0f5132; border: 1px solid #badbcc; }
-.estado-cancelado { background: #f8d7da; color: #721c24; border: 1px solid #f1b0b7; }
-
-.estado-pendiente { background: #fff3cd; color: #856404; border: 1px solid #ffeaa7; }
-.estado-parcial { background: #ffeaa7; color: #856404; border: 1px solid #ffd43b; }
-.estado-pagado { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
-</style>
 {% endblock %}
+
