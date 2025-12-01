@@ -5,24 +5,18 @@
     <h1 style="text-align: center; margin-bottom: 2rem;">Solicitar Producto Personalizado</h1>
     
     <div class="card">
-        <!-- Mostrar errores del formulario -->
-        {% if form.errors %}
-        <div style="background: #f8d7da; color: #721c24; padding: 1rem; border-radius: 5px; margin-bottom: 1rem;">
-            <strong>Error:</strong> Por favor corrige los errores below.
-            {{ form.errors }}
-        </div>
-        {% endif %}
-
         <form method="post" enctype="multipart/form-data">
             {% csrf_token %}
             
-            <h3 style="margin-bottom: 1rem;">Información de Contacto</h3>
+            <h3 style="margin-bottom: 1rem; color: #667eea;">📞 Información de Contacto</h3>
             
             <div class="form-group">
                 <label for="{{ form.nombre_cliente.id_for_label }}">Nombre completo *</label>
                 {{ form.nombre_cliente }}
                 {% if form.nombre_cliente.errors %}
-                <div style="color: red; font-size: 0.8rem;">{{ form.nombre_cliente.errors }}</div>
+                <div style="color: red; font-size: 0.9rem; margin-top: 0.5rem;">
+                    {{ form.nombre_cliente.errors }}
+                </div>
                 {% endif %}
             </div>
             
@@ -31,7 +25,9 @@
                     <label for="{{ form.email.id_for_label }}">Email *</label>
                     {{ form.email }}
                     {% if form.email.errors %}
-                    <div style="color: red; font-size: 0.8rem;">{{ form.email.errors }}</div>
+                    <div style="color: red; font-size: 0.9rem; margin-top: 0.5rem;">
+                        {{ form.email.errors }}
+                    </div>
                     {% endif %}
                 </div>
                 <div class="form-group">
@@ -43,9 +39,10 @@
             <div class="form-group">
                 <label for="{{ form.red_social.id_for_label }}">Red social (opcional)</label>
                 {{ form.red_social }}
+                <small style="color: #666;">Ej: @usuario_instagram o enlace de Facebook</small>
             </div>
             
-            <h3 style="margin-bottom: 1rem; margin-top: 2rem;">Detalles del Pedido</h3>
+            <h3 style="margin-bottom: 1rem; margin-top: 2rem; color: #667eea;">🎨 Detalles del Pedido</h3>
             
             <div class="form-group">
                 <label for="{{ form.producto_referencia.id_for_label }}">Producto de referencia (opcional)</label>
@@ -56,7 +53,9 @@
                 <label for="{{ form.descripcion_diseno.id_for_label }}">Descripción del diseño *</label>
                 {{ form.descripcion_diseno }}
                 {% if form.descripcion_diseno.errors %}
-                <div style="color: red; font-size: 0.8rem;">{{ form.descripcion_diseno.errors }}</div>
+                <div style="color: red; font-size: 0.9rem; margin-top: 0.5rem;">
+                    {{ form.descripcion_diseno.errors }}
+                </div>
                 {% endif %}
             </div>
             
@@ -66,16 +65,22 @@
                     {{ form.fecha_requerida }}
                 </div>
                 <div class="form-group">
-                    <label for="{{ form.plataforma.id_for_label }}">¿Dónde realizó el pedido?</label>
+                    <label for="{{ form.plataforma.id_for_label }}">¿Dónde realizó el pedido? *</label>
                     {{ form.plataforma }}
+                    {% if form.plataforma.errors %}
+                    <div style="color: red; font-size: 0.9rem; margin-top: 0.5rem;">
+                        {{ form.plataforma.errors }}
+                    </div>
+                    {% endif %}
                 </div>
             </div>
             
-            <h3 style="margin-bottom: 1rem; margin-top: 2rem;">Imágenes de Referencia (opcional)</h3>
+            <h3 style="margin-bottom: 1rem; margin-top: 2rem; color: #667eea;">🖼️ Imágenes de Referencia (opcional)</h3>
             
             <div class="form-group">
                 <label for="{{ form.imagen_referencia_1.id_for_label }}">Imagen de referencia 1</label>
                 {{ form.imagen_referencia_1 }}
+                <small style="color: #666;">Sube una imagen que muestre tu idea o diseño deseado</small>
             </div>
             
             <div class="form-group">
@@ -88,15 +93,56 @@
                 {{ form.imagen_referencia_3 }}
             </div>
             
-            <button type="submit" class="btn" style="width: 100%; font-size: 1.1rem; margin-top: 2rem;">
-                Enviar Solicitud de Pedido
+            <button type="submit" class="btn" style="width: 100%; margin-top: 2rem; background: #28a745; font-size: 1.1rem;">
+                🚀 Enviar Solicitud de Pedido
             </button>
             
-            <div style="margin-top: 1rem; text-align: center; color: #666;">
-                <p><strong>Estado inicial:</strong> <span style="color: #856404;">Solicitado</span></p>
-                <p><strong>Pago:</strong> <span style="color: #856404;">Pendiente</span></p>
-            </div>
+            <p style="text-align: center; margin-top: 1rem; color: #666; font-size: 0.9rem;">
+                * Campos obligatorios
+            </p>
         </form>
     </div>
 </div>
+
+<style>
+.form-group {
+    margin-bottom: 1.5rem;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 600;
+    color: #333;
+}
+
+.form-control {
+    width: 100%;
+    padding: 0.75rem;
+    border: 2px solid #e9ecef;
+    border-radius: 8px;
+    font-size: 1rem;
+    transition: border-color 0.3s;
+}
+
+.form-control:focus {
+    outline: none;
+    border-color: #667eea;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+select.form-control {
+    background-color: white;
+}
+
+textarea.form-control {
+    resize: vertical;
+    min-height: 100px;
+}
+
+small {
+    display: block;
+    margin-top: 0.25rem;
+}
+</style>
 {% endblock %}
