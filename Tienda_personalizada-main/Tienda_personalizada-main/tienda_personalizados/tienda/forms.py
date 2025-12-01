@@ -10,41 +10,40 @@ class SolicitudPedidoForm(forms.ModelForm):
         model = Pedido
         fields = [
             'nombre_cliente', 'email', 'telefono', 'red_social',
-            'producto_referencia', 'descripcion_diseno', 'fecha_requerida',
-            'plataforma'
+            'producto_referencia', 'descripcion_diseno', 'fecha_requerida'
+            # ❌ QUITAMOS 'plataforma' del formulario - se asigna automáticamente
         ]
         widgets = {
-            'descripcion_diseno': forms.Textarea(attrs={
-                'rows': 4, 
-                'placeholder': 'Describe tu diseño, colores, texto, estilo, etc.'
-            }),
+            'descripcion_diseno': forms.Textarea(attrs={'rows': 4, 'placeholder': 'Describe tu diseño personalizado...'}),
             'fecha_requerida': forms.DateInput(attrs={'type': 'date'}),
-            'plataforma': forms.Select(attrs={'class': 'form-control'}),
-        }
-        labels = {
-            'plataforma': '¿Dónde realizó el pedido?',
-            'descripcion_diseno': 'Descripción del diseño *',
-            'fecha_requerida': 'Fecha requerida (opcional)',
         }
     
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        # Hacer el producto_referencia opcional
+        # Hacer el producto de referencia opcional
         self.fields['producto_referencia'].required = False
-        self.fields['producto_referencia'].empty_label = "Seleccione un producto (opcional)"
-        
+        self.fields['producto_referencia'].empty_label = "Selecciona un producto (opcional)"
+    
     def save(self, commit=True):
+        # ✅ Asignar automáticamente "sitio_web" como plataforma
+        self.instance.plataforma = 'sitio_web'
+        
+        # ✅ Estados automáticos: Solicitado y Pendiente
+        self.instance.estado_pedido = 'solicitado'
+        self.instance.estado_pago = 'pendiente'
+        
         pedido = super().save(commit=commit)
         
-        # Guardar imágenes de referencia si se proporcionaron
-        for i in range(1, 4):
-            imagen_field = f'imagen_referencia_{i}'
-            imagen = self.cleaned_data.get(imagen_field)
-            if imagen:
-                ImagenReferencia.objects.create(
-                    pedido=pedido,
-                    imagen=imagen,
-                    descripcion=f"Imagen de referencia {i} enviada por el cliente"
-                )
+        # Guardar imágenes de referencia
+        if commit:
+            for i in range(1, 4):
+                imagen_field = f'imagen_referencia_{i}'
+                imagen = self.cleaned_data.get(imagen_field)
+                if imagen:
+                    ImagenReferencia.objects.create(
+                        pedido=pedido,
+                        imagen=imagen,
+                        descripcion=f"Imagen de referencia {i} enviada por el cliente"
+                    )
         
         return pedido
