@@ -147,10 +147,24 @@
     </header>
 
     <main>
-        <div class="container">
-            {% block content %}
-            {% endblock %}
+        <!-- En templates/tienda/base.html, después del header -->
+<main>
+    <div class="container">
+        <!-- ✅ AGREGAR ESTO PARA MOSTRAR MENSAJES -->
+        {% if messages %}
+        <div class="mensajes">
+            {% for message in messages %}
+            <div class="alert alert-{{ message.tags }}">
+                {{ message }}
+            </div>
+            {% endfor %}
         </div>
+        {% endif %}
+        
+        {% block content %}
+        {% endblock %}
+    </div>
+</main>
     </main>
 
     <footer>
