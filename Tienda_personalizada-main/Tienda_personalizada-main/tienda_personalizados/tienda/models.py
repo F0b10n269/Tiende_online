@@ -13,13 +13,13 @@ class Categoria(models.Model):
     def __str__(self):
         return self.nombre
 
+
 class Producto(models.Model):
     nombre = models.CharField(max_length=200)
     descripcion = models.TextField()
     categoria = models.ForeignKey(Categoria, on_delete=models.CASCADE)
     precio_base = models.DecimalField(max_digits=10, decimal_places=2)
     activo = models.BooleanField(default=True)
-    destacado = models.BooleanField(default=False, verbose_name="Producto destacado")  # ✅ NUEVO CAMPO
     imagen_1 = models.ImageField(upload_to='productos/', blank=True, null=True)
     imagen_2 = models.ImageField(upload_to='productos/', blank=True, null=True)
     imagen_3 = models.ImageField(upload_to='productos/', blank=True, null=True)
@@ -27,7 +27,6 @@ class Producto(models.Model):
     class Meta:
         verbose_name = "Producto"
         verbose_name_plural = "Productos"
-        ordering = ['-destacado', 'nombre']  # ✅ Ordenar por destacado primero
     
     def __str__(self):
         return self.nombre
@@ -142,3 +141,5 @@ class ImagenReferencia(models.Model):
     
     def __str__(self):
         return f"Imagen para {self.pedido}"
+
+
