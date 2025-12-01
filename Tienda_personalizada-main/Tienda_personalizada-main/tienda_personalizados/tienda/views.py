@@ -4,8 +4,15 @@ from .models import Producto, Categoria, Pedido
 from .forms import SolicitudPedidoForm
 
 def index(request):
+    # Obtener productos activos
     productos_destacados = Producto.objects.filter(activo=True)[:6]
+    
+    # Si no hay productos destacados, mostrar todos los activos
+    if not productos_destacados.exists():
+        productos_destacados = Producto.objects.filter(activo=True)[:3]
+    
     categorias = Categoria.objects.all()
+    
     return render(request, 'tienda/index.html', {
         'productos_destacados': productos_destacados,
         'categorias': categorias
@@ -93,3 +100,4 @@ def seguimiento_pedido(request, token):
         'pedido': pedido,
         'imagenes_referencia': imagenes_referencia
     })
+
