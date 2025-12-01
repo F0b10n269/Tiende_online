@@ -56,9 +56,13 @@ def solicitar_pedido(request):
         form = SolicitudPedidoForm(request.POST, request.FILES)
         if form.is_valid():
             pedido = form.save()
+            # Guardar en sesión para la página de éxito
             request.session['ultimo_pedido_id'] = pedido.id
             request.session['token_seguimiento'] = str(pedido.token_seguimiento)
             return redirect('tienda:pedido_exitoso')
+        else:
+            # Si el formulario no es válido, mostrar errores
+            print("Errores del formulario:", form.errors)
     else:
         form = SolicitudPedidoForm()
         producto_id = request.GET.get('producto')
@@ -80,13 +84,12 @@ def pedido_exitoso(request):
     
     try:
         pedido = Pedido.objects.get(id=pedido_id)
-        # CORREGIR: Usar reverse con el token completo
-        url_seguimiento = request.build_absolute_uri(
-            reverse('tienda:seguimiento_pedido', kwargs={'token': str(pedido.token_seguimiento)})
-        )
+        imagenes_referencia = pedido.imagenes_referencia.all()
+        
         context = {
             'pedido': pedido,
-            'url_seguimiento': url_seguimiento
+            'imagenes_referencia': imagenes_referencia,
+            'url_seguimiento': request.build_absolute_uri(f'/seguimiento/{token_seguimiento}/')
         }
         
         # Limpiar la sesión
@@ -100,18 +103,29 @@ def pedido_exitoso(request):
         return redirect('tienda:index')
 
 def seguimiento_pedido(request, token):
-    try:
-        # Buscar el pedido por el token completo
-        pedido = get_object_or_404(Pedido, token_seguimiento=token)
-    except Pedido.DoesNotExist:
-        # Si no encuentra, intentar buscar como string
-        try:
-            pedido = get_object_or_404(Pedido, token_seguimiento__contains=token)
-        except Pedido.DoesNotExist:
-            return render(request, 'tienda/404.html', status=404)
-    
+    pedido = get_object_or_404(Pedido, token_seguimiento=token)
     imagenes_referencia = pedido.imagenes_referencia.all()
+    
+    # Mapear estados para mostrar mejor en el template
+    estados_pedido = {
+        'solicitado': 'Solicitado',
+        'aprobado': 'Aprobado', 
+        'en_proceso': 'En Proceso',
+        'realizado': 'Realizado',
+        'entregado': 'Entregado',
+        'finalizado': 'Finalizado',
+        'cancelado': 'Cancelado'
+    }
+    
+    estados_pago = {
+        'pendiente': 'Pendiente',
+        'parcial': 'Pago Parcial',
+        'pagado': 'Pagado'
+    }
+    
     return render(request, 'tienda/seguimiento_pedido.html', {
         'pedido': pedido,
-        'imagenes_referencia': imagenes_referencia
+        'imagenes_referencia': imagenes_referencia,
+        'estado_pedido_texto': estados_pedido.get(pedido.estado_pedido, pedido.estado_pedido),
+        'estado_pago_texto': estados_pago.get(pedido.estado_pago, pedido.estado_pago)
     })
