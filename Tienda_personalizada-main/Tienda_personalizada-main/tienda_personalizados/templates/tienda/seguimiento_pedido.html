@@ -50,6 +50,45 @@
             </div>
         </div>
         
+        <!-- ===== AGREGAR AQUÍ EL BLOQUE DEL PRESUPUESTO ===== -->
+        <div style="background: linear-gradient(135deg, #e7f3ff 0%, #d4e7ff 100%); 
+                    padding: 1.5rem; 
+                    border-radius: 10px; 
+                    margin-bottom: 2rem;
+                    border-left: 5px solid #198754;">
+            <h3 style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 1rem;">
+                <span style="font-size: 1.5rem;">💰</span> Presupuesto Estimado Automático
+            </h3>
+            <p style="font-size: 2rem; font-weight: bold; color: #198754; text-align: center; margin: 1rem 0;">
+                ${{ pedido.presupuesto_estimado|floatformat:2 }}
+            </p>
+            <div style="background: white; padding: 1rem; border-radius: 5px; margin-top: 1rem;">
+                <p style="font-weight: bold; margin-bottom: 0.5rem;">📊 ¿Cómo se calculó?</p>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; font-size: 0.9rem;">
+                    <div>
+                        <strong>Precio base:</strong><br>
+                        ${{ pedido.producto_referencia.precio_base|default:"10.000"|floatformat:2 }}
+                    </div>
+                    <div>
+                        <strong>Complejidad:</strong><br>
+                        {{ pedido.descripcion_diseno|length }} caracteres
+                    </div>
+                    <div>
+                        <strong>Imágenes ref.:</strong><br>
+                        {{ pedido.imagenes_referencia.count }} imágenes
+                    </div>
+                    <div>
+                        <strong>Plataforma:</strong><br>
+                        {{ pedido.get_plataforma_display }}
+                    </div>
+                </div>
+                <p style="color: #666; font-size: 0.8rem; margin-top: 0.5rem; font-style: italic;">
+                    * Este es un cálculo automático. El precio final puede ajustarse.
+                </p>
+            </div>
+        </div>
+        <!-- ===== FIN DEL BLOQUE DEL PRESUPUESTO ===== -->
+        
         {% if imagenes_referencia %}
         <div style="margin-bottom: 2rem;">
             <h3>📸 Imágenes de Referencia</h3>
