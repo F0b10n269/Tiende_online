@@ -44,6 +44,20 @@ class Insumo(models.Model):
     cantidad_disponible = models.IntegerField()
     unidad = models.CharField(max_length=20, choices=TIPOS_UNIDAD, default='unidades')
     
+    # ✅ AGREGAR ESTOS CAMPOS NUEVOS:
+    marca = models.CharField(
+        max_length=50, 
+        blank=True, 
+        default="", 
+        verbose_name="Marca"
+    )
+    color = models.CharField(
+        max_length=30, 
+        blank=True, 
+        default="", 
+        verbose_name="Color"
+    )
+    
     class Meta:
         verbose_name = "Insumo"
         verbose_name_plural = "Insumos"
