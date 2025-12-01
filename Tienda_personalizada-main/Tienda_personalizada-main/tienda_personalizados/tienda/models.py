@@ -99,7 +99,14 @@ class Pedido(models.Model):
     
     # Funcionalidad extra: Presupuesto
     presupuesto_aprobado = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
-    notas_internas = models.TextField(blank=True, default="")  # ✅ CORREGIDO
+    notas_internas = models.TextField(blank=True, default="")  # ✅ CORREGIDO 
+    # ... (resto de tus campos) ...
+    
+    def save(self, *args, **kwargs):
+        # Solo esta línea adicional
+        if not self.token_seguimiento:
+            self.token_seguimiento = uuid.uuid4()
+        super().save(*args, **kwargs)
     
     class Meta:
         verbose_name = "Pedido"
@@ -125,3 +132,4 @@ class ImagenReferencia(models.Model):
     
     def __str__(self):
         return f"Imagen para {self.pedido}"
+
