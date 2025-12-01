@@ -64,9 +64,13 @@
             </div>
         </div>
         {% empty %}
-        <p style="text-align: center; grid-column: 1 / -1; color: #666;">
-            No hay productos destacados disponibles.
-        </p>
+        <div style="text-align: center; grid-column: 1 / -1; color: #666; padding: 2rem;">
+            <p style="font-size: 1.2rem; margin-bottom: 1rem;">📦 No hay productos destacados</p>
+            <p>Marca algunos productos como destacados en el panel de administración.</p>
+            <a href="{% url 'tienda:catalogo' %}" class="btn" style="margin-top: 1rem;">
+                Ver todos los productos
+            </a>
+        </div>
         {% endfor %}
     </div>
     
