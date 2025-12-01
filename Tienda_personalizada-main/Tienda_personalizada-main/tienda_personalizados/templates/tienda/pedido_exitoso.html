@@ -1,29 +1,80 @@
-{% extends "tienda/base.html" %}
+{% extends 'tienda/base.html' %}
 
 {% block content %}
-<div class="container mt-5">
+<div style="max-width: 800px; margin: 0 auto;">
+    <div class="card" style="text-align: center;">
+        <!-- Icono de éxito -->
+        <div style="font-size: 4rem; color: #28a745; margin-bottom: 1rem;">✅</div>
+        
+        <h1 style="color: #28a745; margin-bottom: 1rem;">¡Pedido Solicitado Exitosamente!</h1>
+        
+        <!-- Información del pedido -->
+        <div style="background: #d4edda; padding: 1.5rem; border-radius: 10px; margin-bottom: 2rem;">
+            <h3>Tu pedido ha sido registrado</h3>
+            <p><strong>Número de pedido:</strong> #{{ pedido.id }}</p>
+            <p><strong>Cliente:</strong> {{ pedido.nombre_cliente }}</p>
+            <p><strong>Estado:</strong> 
+                <span style="background: #fff3cd; color: #856404; padding: 0.3rem 1rem; border-radius: 15px; font-weight: bold;">
+                    Solicitado
+                </span>
+            </p>
+        </div>
 
-    <h2 class="text-center mb-4">¡Pedido enviado con éxito!</h2>
-
-    <div class="card shadow">
-        <div class="card-body">
-
-            <p>Gracias por enviar tu solicitud, <strong>{{ pedido.nombre_cliente }}</strong>.</p>
-
-            <p><strong>Esta es tu URL única de seguimiento:</strong></p>
-
-            <div class="alert alert-info">
-                <strong>
-                    <a href="{{ url_seguimiento }}" target="_blank">{{ url_seguimiento }}</a>
-                </strong>
+        <!-- Mostrar imágenes subidas -->
+        {% if imagenes_referencia %}
+        <div style="margin-bottom: 2rem; text-align: left;">
+            <h3 style="text-align: center;">📷 Imágenes de referencia subidas</h3>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 1rem; margin-top: 1rem;">
+                {% for imagen in imagenes_referencia %}
+                <div style="text-align: center;">
+                    <img src="{{ imagen.imagen.url }}" 
+                         alt="Imagen de referencia {{ forloop.counter }}" 
+                         style="width: 100%; height: 120px; object-fit: cover; border-radius: 8px; border: 2px solid #ddd;">
+                    <p style="font-size: 0.8rem; color: #666; margin-top: 0.5rem;">
+                        Imagen {{ forloop.counter }}
+                    </p>
+                </div>
+                {% endfor %}
             </div>
+        </div>
+        {% else %}
+        <div style="background: #f8f9fa; padding: 1rem; border-radius: 8px; margin-bottom: 2rem;">
+            <p style="color: #666; margin: 0;">📷 No se subieron imágenes de referencia</p>
+        </div>
+        {% endif %}
 
-            <p>Guarda este enlace para revisar el estado de tu pedido en cualquier momento.</p>
+        <!-- URL de seguimiento -->
+        <div style="background: #e7f3ff; padding: 1.5rem; border-radius: 10px; margin-bottom: 2rem;">
+            <h3 style="color: #004085;">🔗 Tu enlace de seguimiento único</h3>
+            <div style="background: white; padding: 1rem; border-radius: 5px; margin: 1rem 0; word-break: break-all;">
+                <a href="{{ url_seguimiento }}" style="color: #667eea; text-decoration: none; font-size: 0.9rem;">
+                    {{ url_seguimiento }}
+                </a>
+            </div>
+            <p style="color: #666; font-size: 0.9rem;">
+                <strong>⚠️ Guarda este enlace</strong> - Es tu única forma de hacer seguimiento del pedido
+            </p>
+        </div>
 
-            <a href="{% url 'tienda:index' %}" class="btn btn-primary mt-3">Volver al inicio</a>
+        <!-- Botones de acción -->
+        <div style="display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;">
+            <a href="{{ url_seguimiento }}" class="btn" style="background: #667eea; font-size: 1.1rem;">
+                🔍 Ir al Seguimiento del Pedido
+            </a>
+            <a href="{% url 'tienda:index' %}" class="btn" style="background: #6c757d;">
+                🏠 Volver al Inicio
+            </a>
+        </div>
 
+        <!-- Información adicional -->
+        <div style="margin-top: 2rem; padding-top: 1rem; border-top: 1px solid #ddd;">
+            <p style="color: #666; font-size: 0.9rem;">
+                <strong>Próximos pasos:</strong><br>
+                1. Revisaremos tu solicitud en las próximas 24 horas<br>
+                2. Te contactaremos si necesitamos más información<br>
+                3. Podrás ver las actualizaciones usando el enlace de arriba
+            </p>
         </div>
     </div>
-
 </div>
 {% endblock %}
