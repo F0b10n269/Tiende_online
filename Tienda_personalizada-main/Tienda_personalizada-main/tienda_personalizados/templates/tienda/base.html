@@ -1,144 +1,162 @@
-import uuid
-from django.db import models
-from django.utils import timezone
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Tienda de Artículos Personalizados{% endblock %}</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background-color: #f8f9fa;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+        header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 1rem 0;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .logo {
+            font-size: 1.8rem;
+            font-weight: bold;
+        }
+        .nav-links {
+            display: flex;
+            list-style: none;
+            gap: 2rem;
+        }
+        .nav-links a {
+            color: white;
+            text-decoration: none;
+            font-weight: 500;
+            transition: opacity 0.3s;
+        }
+        .nav-links a:hover {
+            opacity: 0.8;
+        }
+        main {
+            min-height: calc(100vh - 140px);
+            padding: 2rem 0;
+        }
+        footer {
+            background: #343a40;
+            color: white;
+            text-align: center;
+            padding: 1rem 0;
+            margin-top: 2rem;
+        }
+        .btn {
+            display: inline-block;
+            padding: 0.8rem 1.5rem;
+            background: #667eea;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            border: none;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        .btn:hover {
+            background: #5a6fd8;
+        }
+        .alert {
+            padding: 1rem;
+            border-radius: 5px;
+            margin: 1rem 0;
+        }
+        .alert-success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .grid {
+            display: grid;
+            gap: 2rem;
+        }
+        .grid-3 {
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        }
+        .card {
+            background: white;
+            border-radius: 10px;
+            padding: 1.5rem;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            transition: transform 0.3s;
+        }
+        .card:hover {
+            transform: translateY(-5px);
+        }
+        .form-group {
+            margin-bottom: 1rem;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+        }
+        .form-control {
+            width: 100%;
+            padding: 0.8rem;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 1rem;
+        }
+        .estado-pedido {
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-weight: bold;
+            text-align: center;
+        }
+        .estado-solicitado { background: #fff3cd; color: #856404; }
+        .estado-aprobado { background: #d1ecf1; color: #0c5460; }
+        .estado-en_proceso { background: #d4edda; color: #155724; }
+        .estado-realizado { background: #cce7ff; color: #004085; }
+        .estado-entregado { background: #e2e3e5; color: #383d41; }
+        .estado-finalizado { background: #d1e7dd; color: #0f5132; }
+        .estado-cancelado { background: #f8d7da; color: #721c24; }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <nav>
+                <div class="logo">🎨 Personalizados</div>
+                <ul class="nav-links">
+                    <li><a href="{% url 'tienda:index' %}">Inicio</a></li>
+                    <li><a href="{% url 'tienda:catalogo' %}">Catálogo</a></li>
+                    <li><a href="{% url 'tienda:solicitar_pedido' %}">Solicitar Pedido</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
 
-class Categoria(models.Model):
-    nombre = models.CharField(max_length=100)
-    descripcion = models.TextField(blank=True)
-    
-    class Meta:
-        verbose_name = "Categoría"
-        verbose_name_plural = "Categorías"
-    
-    def __str__(self):
-        return self.nombre
+    <main>
+        <div class="container">
+            {% block content %}
+            {% endblock %}
+        </div>
+    </main>
 
-
-class Producto(models.Model):
-    nombre = models.CharField(max_length=200)
-    descripcion = models.TextField()
-    categoria = models.ForeignKey(Categoria, on_delete=models.CASCADE)
-    precio_base = models.DecimalField(max_digits=10, decimal_places=2)
-    activo = models.BooleanField(default=True)
-    imagen_1 = models.ImageField(upload_to='productos/', blank=True, null=True)
-    imagen_2 = models.ImageField(upload_to='productos/', blank=True, null=True)
-    imagen_3 = models.ImageField(upload_to='productos/', blank=True, null=True)
-    
-    class Meta:
-        verbose_name = "Producto"
-        verbose_name_plural = "Productos"
-    
-    def __str__(self):
-        return self.nombre
-
-
-class Insumo(models.Model):
-    TIPOS_UNIDAD = [
-        ('unidades', 'Unidades'),
-        ('metros', 'Metros'),
-        ('litros', 'Litros'),
-        ('kilos', 'Kilos'),
-    ]
-    
-    nombre = models.CharField(max_length=200)
-    tipo = models.CharField(max_length=100)
-    cantidad_disponible = models.IntegerField()
-    unidad = models.CharField(max_length=20, choices=TIPOS_UNIDAD, default='unidades')
-    
-    class Meta:
-        verbose_name = "Insumo"
-        verbose_name_plural = "Insumos"
-    
-    def __str__(self):
-        return f"{self.nombre} ({self.cantidad_disponible} {self.unidad})"
-
-
-class Pedido(models.Model):
-    ESTADOS_PEDIDO = [
-        ('solicitado', 'Solicitado'),
-        ('aprobado', 'Aprobado'),
-        ('en_proceso', 'En proceso'),
-        ('realizado', 'Realizado'),
-        ('entregado', 'Entregado'),
-        ('finalizado', 'Finalizado'),
-        ('cancelado', 'Cancelado'),
-    ]
-    
-    ESTADOS_PAGO = [
-        ('pendiente', 'Pendiente'),
-        ('parcial', 'Parcial'),
-        ('pagado', 'Pagado'),
-    ]
-    
-    PLATAFORMAS = [
-        ('facebook', 'Facebook'),
-        ('instagram', 'Instagram'),
-        ('whatsapp', 'WhatsApp'),
-        ('sitio_web', 'Sitio Web'),
-        ('presencial', 'Presencial'),
-        ('otro', 'Otro'),
-    ]
-    
-    # Información del cliente
-    nombre_cliente = models.CharField(max_length=200)
-    email = models.EmailField()
-    telefono = models.CharField(max_length=20, blank=True)
-    red_social = models.CharField(max_length=100, blank=True)
-    
-    # Información del pedido
-    producto_referencia = models.ForeignKey(Producto, on_delete=models.SET_NULL, null=True, blank=True)
-    descripcion_diseno = models.TextField()
-    fecha_requerida = models.DateField(null=True, blank=True)
-    plataforma = models.CharField(max_length=20, choices=PLATAFORMAS, default='sitio_web')
-    
-    # Estados
-    estado_pedido = models.CharField(max_length=20, choices=ESTADOS_PEDIDO, default='solicitado')
-    estado_pago = models.CharField(max_length=20, choices=ESTADOS_PAGO, default='pendiente')
-    
-    # Token de seguimiento (ahora con nombre más amigable)
-    token_seguimiento = models.CharField(
-        "Token de seguimiento",
-        max_length=12,
-        unique=True,
-        editable=False,
-        blank=True
-    )
-
-    fecha_creacion = models.DateTimeField(default=timezone.now)
-    fecha_actualizacion = models.DateTimeField(auto_now=True)
-    
-    # Funcionalidad extra: Presupuesto
-    presupuesto_aprobado = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
-    notas_internas = models.TextField(blank=True)
-    
-    class Meta:
-        verbose_name = "Pedido"
-        verbose_name_plural = "Pedidos"
-        ordering = ['-fecha_creacion']
-    
-    def __str__(self):
-        return f"Pedido #{self.id} - {self.nombre_cliente}"
-
-    def save(self, *args, **kwargs):
-        if not self.token_seguimiento:
-            self.token_seguimiento = uuid.uuid4().hex[:12]
-        super().save(*args, **kwargs)
-
-    def get_absolute_url(self):
-        from django.urls import reverse
-        return reverse('seguimiento_pedido', kwargs={'token': self.token_seguimiento})
-
-
-class ImagenReferencia(models.Model):
-    pedido = models.ForeignKey(Pedido, related_name='imagenes_referencia', on_delete=models.CASCADE)
-    imagen = models.ImageField(upload_to='referencias/')
-    descripcion = models.CharField(max_length=200, blank=True)
-    fecha_subida = models.DateTimeField(auto_now_add=True)
-    
-    class Meta:
-        verbose_name = "Imagen de Referencia"
-        verbose_name_plural = "Imágenes de Referencia"
-    
-    def __str__(self):
-        return f"Imagen para {self.pedido}"
-
+    <footer>
+        <div class="container">
+            <p>&copy; 2024 Tienda de Artículos Personalizados. Todos los derechos reservados.</p>
+        </div>
+    </footer>
+</body>
+</html>
