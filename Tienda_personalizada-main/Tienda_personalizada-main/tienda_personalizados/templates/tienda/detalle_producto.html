@@ -1,48 +1,81 @@
 {% extends 'tienda/base.html' %}
 
 {% block content %}
-<div style="max-width: 800px; margin: 0 auto;">
-    <a href="{% url 'tienda:catalogo' %}" class="btn" style="margin-bottom: 2rem;">← Volver al catálogo</a>
-    
-    <div class="card">
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem;">
-            <div>
-                {% if producto.imagen_1 %}
-                <img src="{{ producto.imagen_1.url }}" alt="{{ producto.nombre }}" 
-                     style="width: 100%; border-radius: 10px; margin-bottom: 1rem;">
-                {% endif %}
-                
-                <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.5rem;">
-                    {% if producto.imagen_2 %}
-                    <img src="{{ producto.imagen_2.url }}" alt="{{ producto.nombre }}" 
-                         style="width: 100%; border-radius: 5px;">
-                    {% endif %}
-                    {% if producto.imagen_3 %}
-                    <img src="{{ producto.imagen_3.url }}" alt="{{ producto.nombre }}" 
-                         style="width: 100%; border-radius: 5px;">
-                    {% endif %}
-                </div>
-            </div>
-            
-            <div>
-                <h1 style="margin-bottom: 1rem;">{{ producto.nombre }}</h1>
-                <p style="color: #667eea; font-weight: bold; font-size: 1.5rem; margin-bottom: 1rem;">
-                    ${{ producto.precio_base }}
-                </p>
-                <p style="color: #666; margin-bottom: 1rem;">
-                    <strong>Categoría:</strong> {{ producto.categoria.nombre }}
-                </p>
-                <div style="margin-bottom: 2rem;">
-                    <h3>Descripción:</h3>
-                    <p style="color: #666; line-height: 1.6;">{{ producto.descripcion }}</p>
-                </div>
-                
+<h2>Bienvenido a nuestra tienda</h2>
+<p>Aquí puedes encontrar productos personalizados únicos.</p>
+
+<h3>Productos Destacados</h3>
+{% if productos_destacados %}
+    <div>
+    {% for producto in productos_destacados %}
+        <div style="border: 1px solid #ccc; padding: 10px; margin: 10px;">
+            <h4>{{ producto.nombre }}</h4>
+            <p>Precio: ${{ producto.precio_base }}</p>
+            <a href="{% url 'tienda:detalle_producto' producto.id %}">Ver detalles</a>
+        </div>
+    {% endfor %}
+    </div>
+{% else %}
+    <p>No hay productos disponibles.</p>
+{% endif %}
+{% endblock %}
+
+<section style="text-align: center; margin-bottom: 3rem;">
+    <h1 style="font-size: 3rem; margin-bottom: 1rem;">Crea algo único</h1>
+    <p style="font-size: 1.2rem; color: #666; margin-bottom: 2rem;">
+        Transformamos tus ideas en artículos personalizados inolvidables
+    </p>
+    <a href="{% url 'tienda:solicitar_pedido' %}" class="btn" style="font-size: 1.1rem;">
+        Solicitar Producto Personalizado
+    </a>
+</section>
+
+<section style="margin-bottom: 3rem;">
+    <h2 style="text-align: center; margin-bottom: 2rem;">Categorías</h2>
+    <div class="grid grid-3">
+        {% for categoria in categorias %}
+        <div class="card" style="text-align: center;">
+            <h3>{{ categoria.nombre }}</h3>
+            <p style="color: #666; margin-top: 1rem;">{{ categoria.descripcion|default:"Descubre nuestros productos" }}</p>
+            <a href="{% url 'tienda:catalogo' %}?categoria={{ categoria.id }}" class="btn" style="margin-top: 1rem;">
+                Ver Productos
+            </a>
+        </div>
+        {% endfor %}
+    </div>
+</section>
+
+<section>
+    <h2 style="text-align: center; margin-bottom: 2rem;">Productos Destacados</h2>
+    <div class="grid grid-3">
+        {% for producto in productos_destacados %}
+        <div class="card">
+            {% if producto.imagen_1 %}
+            <img src="{{ producto.imagen_1.url }}" alt="{{ producto.nombre }}" 
+                 style="width: 100%; height: 200px; object-fit: cover; border-radius: 5px; margin-bottom: 1rem;">
+            {% endif %}
+            <h3>{{ producto.nombre }}</h3>
+            <p style="color: #667eea; font-weight: bold; font-size: 1.2rem; margin: 0.5rem 0;">
+                ${{ producto.precio_base }}
+            </p>
+            <p style="color: #666; margin-bottom: 1rem;">
+                {{ producto.descripcion|truncatewords:20 }}
+            </p>
+            <div style="display: flex; gap: 0.5rem;">
+                <a href="{% url 'tienda:detalle_producto' producto.id %}" class="btn" style="flex: 1;">
+                    Ver Detalles
+                </a>
                 <a href="{% url 'tienda:solicitar_pedido' %}?producto={{ producto.id }}" 
-                   class="btn" style="width: 100%; text-align: center; background: #28a745; font-size: 1.1rem;">
-                    Solicitar Producto Personalizado
+                   class="btn" style="flex: 1; background: #28a745;">
+                    Solicitar
                 </a>
             </div>
         </div>
+        {% empty %}
+        <p style="text-align: center; grid-column: 1 / -1; color: #666;">
+            No hay productos destacados disponibles.
+        </p>
+        {% endfor %}
     </div>
-</div>
-{% endblock %}
+</section>
+
