@@ -119,6 +119,58 @@ class Pedido(models.Model):
     def get_absolute_url(self):
         from django.urls import reverse
         return reverse('seguimiento_pedido', kwargs={'token': self.token_seguimiento})
+    
+    presupuesto_estimado = models.DecimalField(
+    max_digits=10, 
+    decimal_places=2, 
+    null=True, 
+    blank=True,
+    verbose_name="Presupuesto estimado"
+)
+
+def calcular_presupuesto(self):
+    if self.producto_referencia:
+        base = float(self.producto_referencia.precio_base)
+    else:
+        base = 10000
+    
+    complejidad = min(len(self.descripcion_diseno) / 500, 2.0)
+    imagenes = self.imagenes_referencia.count()
+    factor_imagenes = min(imagenes * 0.15, 0.6)
+    
+    total = base * (1 + complejidad + factor_imagenes)
+    return round(total, 2)
+
+def save(self, *args, **kwargs):
+    if not self.presupuesto_estimado:
+        self.presupuesto_estimado = self.calcular_presupuesto()
+    super().save(*args, **kwargs)
+    
+presupuesto_estimado = models.DecimalField(
+        max_digits=10, 
+        decimal_places=2, 
+        null=True, 
+        blank=True,
+        verbose_name="Presupuesto estimado"
+    )
+    
+def calcular_presupuesto(self):
+    if self.producto_referencia:
+        base = float(self.producto_referencia.precio_base)
+    else:
+        base = 10000
+        
+    complejidad = min(len(self.descripcion_diseno) / 500, 2.0)
+    imagenes = self.imagenes_referencia.count()
+    factor_imagenes = min(imagenes * 0.15, 0.6)
+        
+    total = base * (1 + complejidad + factor_imagenes)
+    return round(total, 2)
+    
+def save(self, *args, **kwargs):
+    if not self.presupuesto_estimado:
+        self.presupuesto_estimado = self.calcular_presupuesto()
+    super().save(*args, **kwargs)
 
 class ImagenReferencia(models.Model):
     pedido = models.ForeignKey(Pedido, related_name='imagenes_referencia', on_delete=models.CASCADE)
