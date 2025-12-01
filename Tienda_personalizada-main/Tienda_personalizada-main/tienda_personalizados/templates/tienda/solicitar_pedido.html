@@ -5,20 +5,34 @@
     <h1 style="text-align: center; margin-bottom: 2rem;">Solicitar Producto Personalizado</h1>
     
     <div class="card">
+        <!-- Mostrar errores del formulario -->
+        {% if form.errors %}
+        <div style="background: #f8d7da; color: #721c24; padding: 1rem; border-radius: 5px; margin-bottom: 1rem;">
+            <strong>Error:</strong> Por favor corrige los errores below.
+            {{ form.errors }}
+        </div>
+        {% endif %}
+
         <form method="post" enctype="multipart/form-data">
             {% csrf_token %}
             
-            <!-- Información de contacto -->
             <h3 style="margin-bottom: 1rem;">Información de Contacto</h3>
+            
             <div class="form-group">
                 <label for="{{ form.nombre_cliente.id_for_label }}">Nombre completo *</label>
                 {{ form.nombre_cliente }}
+                {% if form.nombre_cliente.errors %}
+                <div style="color: red; font-size: 0.8rem;">{{ form.nombre_cliente.errors }}</div>
+                {% endif %}
             </div>
             
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
                 <div class="form-group">
                     <label for="{{ form.email.id_for_label }}">Email *</label>
                     {{ form.email }}
+                    {% if form.email.errors %}
+                    <div style="color: red; font-size: 0.8rem;">{{ form.email.errors }}</div>
+                    {% endif %}
                 </div>
                 <div class="form-group">
                     <label for="{{ form.telefono.id_for_label }}">Teléfono</label>
@@ -31,76 +45,58 @@
                 {{ form.red_social }}
             </div>
             
-            <!-- Detalles del pedido -->
             <h3 style="margin-bottom: 1rem; margin-top: 2rem;">Detalles del Pedido</h3>
+            
             <div class="form-group">
                 <label for="{{ form.producto_referencia.id_for_label }}">Producto de referencia (opcional)</label>
                 {{ form.producto_referencia }}
             </div>
-
+            
             <div class="form-group">
                 <label for="{{ form.descripcion_diseno.id_for_label }}">Descripción del diseño *</label>
                 {{ form.descripcion_diseno }}
+                {% if form.descripcion_diseno.errors %}
+                <div style="color: red; font-size: 0.8rem;">{{ form.descripcion_diseno.errors }}</div>
+                {% endif %}
             </div>
-
-            <div class="form-group">
-                <label for="{{ form.fecha_requerida.id_for_label }}">Fecha requerida (opcional)</label>
-                {{ form.fecha_requerida }}
+            
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                <div class="form-group">
+                    <label for="{{ form.fecha_requerida.id_for_label }}">Fecha requerida (opcional)</label>
+                    {{ form.fecha_requerida }}
+                </div>
+                <div class="form-group">
+                    <label for="{{ form.plataforma.id_for_label }}">¿Dónde realizó el pedido?</label>
+                    {{ form.plataforma }}
+                </div>
             </div>
-
-            <!-- Plataforma -->
-            <div class="form-group" style="margin-top: 1.5rem;">
-                <label for="{{ form.plataforma.id_for_label }}">¿Dónde realizó el pedido?</label>
-                {{ form.plataforma }}
-            </div>
-
-            <!-- Campo "Otra plataforma" (solo aparece al elegir "Otro") -->
-            <div id="campo_otra_plataforma" class="form-group" style="display:none; margin-top: 1rem;">
-                <label for="{{ form.otra_plataforma.id_for_label }}">Otra plataforma</label>
-                {{ form.otra_plataforma }}
-                <small style="color: #666;">Especifica la plataforma si seleccionaste "Otro"</small>
-            </div>
-
-            <!-- Imágenes de referencia -->
+            
             <h3 style="margin-bottom: 1rem; margin-top: 2rem;">Imágenes de Referencia (opcional)</h3>
-
+            
             <div class="form-group">
                 <label for="{{ form.imagen_referencia_1.id_for_label }}">Imagen de referencia 1</label>
                 {{ form.imagen_referencia_1 }}
             </div>
-
+            
             <div class="form-group">
                 <label for="{{ form.imagen_referencia_2.id_for_label }}">Imagen de referencia 2</label>
                 {{ form.imagen_referencia_2 }}
             </div>
-
+            
             <div class="form-group">
                 <label for="{{ form.imagen_referencia_3.id_for_label }}">Imagen de referencia 3</label>
                 {{ form.imagen_referencia_3 }}
             </div>
-
-            <button type="submit" class="btn btn-primary" style="margin-top: 2rem; width: 100%;">
-                Enviar Solicitud
+            
+            <button type="submit" class="btn" style="width: 100%; font-size: 1.1rem; margin-top: 2rem;">
+                Enviar Solicitud de Pedido
             </button>
+            
+            <div style="margin-top: 1rem; text-align: center; color: #666;">
+                <p><strong>Estado inicial:</strong> <span style="color: #856404;">Solicitado</span></p>
+                <p><strong>Pago:</strong> <span style="color: #856404;">Pendiente</span></p>
+            </div>
         </form>
     </div>
 </div>
-
-<!-- Script para mostrar/ocultar "Otra plataforma" -->
-<script>
-    const selectPlataforma = document.getElementById("id_plataforma");
-    const campoOtra = document.getElementById("campo_otra_plataforma");
-
-    function actualizarCampo() {
-        if (selectPlataforma.value === "otro") {
-            campoOtra.style.display = "block";
-        } else {
-            campoOtra.style.display = "none";
-        }
-    }
-
-    selectPlataforma.addEventListener("change", actualizarCampo);
-    window.onload = actualizarCampo;
-</script>
-
 {% endblock %}
