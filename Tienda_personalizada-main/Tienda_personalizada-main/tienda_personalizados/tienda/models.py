@@ -1,6 +1,7 @@
-import uuid
+# models.py - VERSIÓN FINAL SIN UUID
 from django.db import models
 from django.utils import timezone
+import secrets  # Para generar tokens simples
 
 class Categoria(models.Model):
     nombre = models.CharField(max_length=100)
@@ -92,21 +93,29 @@ class Pedido(models.Model):
     estado_pedido = models.CharField(max_length=20, choices=ESTADOS_PEDIDO, default='solicitado')
     estado_pago = models.CharField(max_length=20, choices=ESTADOS_PAGO, default='pendiente')
     
-    # Token de seguimiento
-    token_seguimiento = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)
+    # ✅ TOKEN DE SEGUIMIENTO SIN UUID (usando el segundo código como base)
+    token_seguimiento = models.CharField(
+        max_length=12,  # Más corto y manejable
+        unique=True,
+        editable=False,
+        blank=True
+    )
+    
     fecha_creacion = models.DateTimeField(default=timezone.now)
     fecha_actualizacion = models.DateTimeField(auto_now=True)
     
-    # Funcionalidad extra: Presupuesto
+    # Presupuestos
     presupuesto_aprobado = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
-    notas_internas = models.TextField(blank=True, default="")  # ✅ CORREGIDO 
-    # ... (resto de tus campos) ...
+    notas_internas = models.TextField(blank=True, default="")
     
-    def save(self, *args, **kwargs):
-        # Solo esta línea adicional
-        if not self.token_seguimiento:
-            self.token_seguimiento = uuid.uuid4()
-        super().save(*args, **kwargs)
+    # Funcionalidad extra: Presupuesto estimado
+    presupuesto_estimado = models.DecimalField(
+        max_digits=10, 
+        decimal_places=2, 
+        null=True, 
+        blank=True,
+        verbose_name="Presupuesto estimado"
+    )
     
     class Meta:
         verbose_name = "Pedido"
@@ -120,57 +129,37 @@ class Pedido(models.Model):
         from django.urls import reverse
         return reverse('seguimiento_pedido', kwargs={'token': self.token_seguimiento})
     
-    presupuesto_estimado = models.DecimalField(
-    max_digits=10, 
-    decimal_places=2, 
-    null=True, 
-    blank=True,
-    verbose_name="Presupuesto estimado"
-)
-
-def calcular_presupuesto(self):
-    if self.producto_referencia:
-        base = float(self.producto_referencia.precio_base)
-    else:
-        base = 10000
-    
-    complejidad = min(len(self.descripcion_diseno) / 500, 2.0)
-    imagenes = self.imagenes_referencia.count()
-    factor_imagenes = min(imagenes * 0.15, 0.6)
-    
-    total = base * (1 + complejidad + factor_imagenes)
-    return round(total, 2)
-
-def save(self, *args, **kwargs):
-    if not self.presupuesto_estimado:
-        self.presupuesto_estimado = self.calcular_presupuesto()
-    super().save(*args, **kwargs)
-    
-presupuesto_estimado = models.DecimalField(
-        max_digits=10, 
-        decimal_places=2, 
-        null=True, 
-        blank=True,
-        verbose_name="Presupuesto estimado"
-    )
-    
-def calcular_presupuesto(self):
-    if self.producto_referencia:
-        base = float(self.producto_referencia.precio_base)
-    else:
-        base = 10000
+    def calcular_presupuesto(self):
+        """Calcula presupuesto automáticamente basado en producto y complejidad"""
+        if self.producto_referencia:
+            base = float(self.producto_referencia.precio_base)
+        else:
+            base = 10000
         
-    complejidad = min(len(self.descripcion_diseno) / 500, 2.0)
-    imagenes = self.imagenes_referencia.count()
-    factor_imagenes = min(imagenes * 0.15, 0.6)
+        complejidad = min(len(self.descripcion_diseno) / 500, 2.0)
         
-    total = base * (1 + complejidad + factor_imagenes)
-    return round(total, 2)
+        # Contar imágenes de referencia
+        try:
+            imagenes = self.imagenes_referencia.count()
+        except:
+            imagenes = 0
+        
+        factor_imagenes = min(imagenes * 0.15, 0.6)
+        
+        total = base * (1 + complejidad + factor_imagenes)
+        return round(total, 2)
     
-def save(self, *args, **kwargs):
-    if not self.presupuesto_estimado:
-        self.presupuesto_estimado = self.calcular_presupuesto()
-    super().save(*args, **kwargs)
+    def save(self, *args, **kwargs):
+        # ✅ Asegurar token de seguimiento SIN UUID
+        if not self.token_seguimiento:
+            # Generar token simple de 10 caracteres (ej: "AbC123DeFg")
+            self.token_seguimiento = secrets.token_urlsafe(10)[:10]
+        
+        # Calcular presupuesto estimado si no existe
+        if not self.presupuesto_estimado:
+            self.presupuesto_estimado = self.calcular_presupuesto()
+        
+        super().save(*args, **kwargs)
 
 class ImagenReferencia(models.Model):
     pedido = models.ForeignKey(Pedido, related_name='imagenes_referencia', on_delete=models.CASCADE)
