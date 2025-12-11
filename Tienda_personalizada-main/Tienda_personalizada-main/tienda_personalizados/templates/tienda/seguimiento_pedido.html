@@ -60,14 +60,14 @@
                 <span style="font-size: 1.5rem;">💰</span> Presupuesto Estimado Automático
             </h3>
             <p style="font-size: 2rem; font-weight: bold; color: #198754; text-align: center; margin: 1rem 0;">
-                ${{ pedido.presupuesto_estimado|floatformat:2 }}
+                ${{ pedido.presupuesto_estimado|floatformat:"0" }}
             </p>
             <div style="background: white; padding: 1rem; border-radius: 5px; margin-top: 1rem;">
                 <p style="font-weight: bold; margin-bottom: 0.5rem;">📊 ¿Cómo se calculó?</p>
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; font-size: 0.9rem;">
                     <div>
                         <strong>Precio base:</strong><br>
-                        ${{ pedido.producto_referencia.precio_base|default:"10.000"|floatformat:2 }}
+                        ${{ pedido.producto_referencia.precio_base|default:"10.000"|floatformat:"0" }}
                     </div>
                     <div>
                         <strong>Complejidad:</strong><br>

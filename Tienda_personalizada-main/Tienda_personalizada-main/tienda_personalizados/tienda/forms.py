@@ -31,6 +31,7 @@ class SolicitudPedidoForm(forms.ModelForm):
         # ✅ Estados automáticos: Solicitado y Pendiente
         self.instance.estado_pedido = 'solicitado'
         self.instance.estado_pago = 'pendiente'
+        self.instance.presupuesto_estimado = self.instance.calcular_presupuesto()
         
         pedido = super().save(commit=commit)
         

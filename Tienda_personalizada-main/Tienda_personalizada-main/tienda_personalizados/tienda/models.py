@@ -1,6 +1,7 @@
 # models.py - VERSIÓN FINAL SIN UUID
 from django.db import models
 from django.utils import timezone
+from django.db.models import F
 import secrets  # Para generar tokens simples
 
 class Categoria(models.Model):
@@ -146,11 +147,16 @@ class Pedido(models.Model):
     def calcular_presupuesto(self):
         """Calcula presupuesto automáticamente basado en producto y complejidad"""
         if self.producto_referencia:
+            self.producto_referencia_refresh_from_db()
             base = float(self.producto_referencia.precio_base)
         else:
-            base = 10000
+            base = 7000
         
-        complejidad = min(len(self.descripcion_diseno) / 500, 2.0)
+        palabras = len(self.descripcion_diseno.split())
+
+        complejidad_factor = (palabras// 30) * 0.1
+
+        complejidad = min(complejidad_factor, 0.5)
         
         # Contar imágenes de referencia
         try:
@@ -158,10 +164,10 @@ class Pedido(models.Model):
         except:
             imagenes = 0
         
-        factor_imagenes = min(imagenes * 0.15, 0.6)
+        factor_imagenes = min(imagenes * 0.05, 0.2)
         
         total = base * (1 + complejidad + factor_imagenes)
-        return round(total, 2)
+        return int(round(total))
     
     def save(self, *args, **kwargs):
         # ✅ Asegurar token de seguimiento SIN UUID
@@ -170,8 +176,7 @@ class Pedido(models.Model):
             self.token_seguimiento = secrets.token_urlsafe(10)[:10]
         
         # Calcular presupuesto estimado si no existe
-        if not self.presupuesto_estimado:
-            self.presupuesto_estimado = self.calcular_presupuesto()
+        self.presupuesto_estimado = self.calcular_presupuesto()
         
         super().save(*args, **kwargs)
 
