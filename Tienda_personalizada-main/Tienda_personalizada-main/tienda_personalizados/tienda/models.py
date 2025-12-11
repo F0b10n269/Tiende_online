@@ -147,7 +147,7 @@ class Pedido(models.Model):
     def calcular_presupuesto(self):
         """Calcula presupuesto automáticamente basado en producto y complejidad"""
         if self.producto_referencia:
-            self.producto_referencia_refresh_from_db()
+            self.producto_referencia.refresh_from_db()
             base = float(self.producto_referencia.precio_base)
         else:
             base = 7000
