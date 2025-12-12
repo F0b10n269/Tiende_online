@@ -4,6 +4,11 @@ from django.views.generic.edit import CreateView
 from django.urls import reverse_lazy
 from django.db.models import Q
 from django.contrib import messages
+from .serializers import InsumoSerializer, PedidoSerializer
+from .models import Insumo
+from rest_framework import status
+from rest_framework.decorators import api_view
+from rest_framework import viewsets, mixins
 
 from .models import Producto, Categoria, Pedido
 from .forms import SolicitudPedidoForm
@@ -186,3 +191,16 @@ class SolicitarPedidoView(CreateView):
     def form_invalid(self, form):
         messages.error(self.request, 'Por favor corrige los errores en el formulario.')
         return super().form_invalid(form)
+
+
+class InsumoViewSet(viewsets.ModelViewSet):
+    queryset = Insumo.objects.all()
+    serializer_class = InsumoSerializer
+
+class PedidoViewSet(
+    mixins.ListModelMixin,
+    mixins.RetrieveModelMixin,
+    viewsets.GenericViewSet
+    ):
+    queryset = Pedido.objects.all()
+    serializer_class = PedidoSerializer

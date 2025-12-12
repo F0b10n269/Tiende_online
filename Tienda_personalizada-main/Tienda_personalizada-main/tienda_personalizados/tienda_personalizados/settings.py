@@ -28,10 +28,15 @@ SECRET_KEY = 'django-insecure-wn=_-c*+9ezsz8vk@$#iywdq%6$j))b817%7%f0kb&pkma==w1
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['127.0.0.1',
+                 'localhost',
+                 'miniature-chainsaw-g4697745x4552999q-8000.app.github.dev',
+                 '*'
+                 ]
 
-
+CSRF_TRUSTED_ORIGINS = ['https://*.github.dev', 'https://*.app.github.dev','https://miniature-chainsaw-g4697745x4552999q-8000.app.github.dev','https://miniature-chainsaw-g4697745x4552999q-8000.app.github.dev:8000','https://localhost:8000']
 # Application definition
+#lo del allowed hosts y el csrf lo hice para que me dejara trabajar desde el github codespace y me dejara acceder al admin de la app
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -40,7 +45,8 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'tienda',  
+    'rest_framework',
+    'tienda'  
 ]
 
 MIDDLEWARE = [
