@@ -6,7 +6,7 @@
     <a href="{% url 'tienda:index' %}" class="btn" style="margin-bottom: 2rem;">← Volver al inicio</a>
     
     <div class="card">
-        <h1 style="text-align: center; margin-bottom: 1rem;">📦 Seguimiento de Pedido</h1>
+        <h1 style="text-align: center; margin-bottom: 1rem;"> Seguimiento de Pedido</h1>
         <p style="text-align: center; color: #666; margin-bottom: 2rem;">
             Token: <strong>{{ pedido.token_seguimiento }}</strong>
         </p>
@@ -57,13 +57,13 @@
                     margin-bottom: 2rem;
                     border-left: 5px solid #198754;">
             <h3 style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 1rem;">
-                <span style="font-size: 1.5rem;">💰</span> Presupuesto Estimado Automático
+                <span style="font-size: 1.5rem;"></span> Presupuesto Estimado Automático
             </h3>
             <p style="font-size: 2rem; font-weight: bold; color: #198754; text-align: center; margin: 1rem 0;">
                 ${{ pedido.presupuesto_estimado|floatformat:"0" }}
             </p>
             <div style="background: white; padding: 1rem; border-radius: 5px; margin-top: 1rem;">
-                <p style="font-weight: bold; margin-bottom: 0.5rem;">📊 ¿Cómo se calculó?</p>
+                <p style="font-weight: bold; margin-bottom: 0.5rem;"> ¿Cómo se calculó?</p>
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; font-size: 0.9rem;">
                     <div>
                         <strong>Precio base:</strong><br>
@@ -91,7 +91,7 @@
         
         {% if imagenes_referencia %}
         <div style="margin-bottom: 2rem;">
-            <h3>📸 Imágenes de Referencia</h3>
+            <h3> Imágenes de Referencia</h3>
             <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 1rem; margin-top: 1rem;">
                 {% for imagen in imagenes_referencia %}
                 <div style="text-align: center;">
