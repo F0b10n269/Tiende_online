@@ -8,7 +8,7 @@
         <form method="post" enctype="multipart/form-data">
             {% csrf_token %}
             
-            <h3 style="margin-bottom: 1rem;">📞 Información de Contacto</h3>
+            <h3 style="margin-bottom: 1rem;"> Información de Contacto</h3>
             
             <div class="form-group">
                 <label for="{{ form.nombre_cliente.id_for_label }}">Nombre completo *</label>
@@ -32,7 +32,7 @@
                 <small style="color: #666;">Ej: @tu_usuario_instagram</small>
             </div>
             
-            <h3 style="margin-bottom: 1rem; margin-top: 2rem;">🎨 Detalles del Pedido</h3>
+            <h3 style="margin-bottom: 1rem; margin-top: 2rem;"> Detalles del Pedido</h3>
             
             <div class="form-group">
                 <label for="{{ form.producto_referencia.id_for_label }}">Producto de referencia (opcional)</label>
@@ -52,7 +52,7 @@
                 <small style="color: #666;">Si necesitas el producto para una fecha específica</small>
             </div>
             
-            <h3 style="margin-bottom: 1rem; margin-top: 2rem;">🖼️ Imágenes de Referencia (opcional)</h3>
+            <h3 style="margin-bottom: 1rem; margin-top: 2rem;"> Imágenes de Referencia (opcional)</h3>
             
             <div class="form-group">
                 <label for="{{ form.imagen_referencia_1.id_for_label }}">Imagen de referencia 1</label>
@@ -71,7 +71,7 @@
             
             <div style="background: #e7f3ff; padding: 1rem; border-radius: 5px; margin: 1rem 0;">
                 <p style="margin: 0; color: #0066cc;">
-                    <strong>💡 Nota:</strong> Tu pedido se creará automáticamente como <strong>"Solicitado"</strong> 
+                    <strong> Nota:</strong> Tu pedido se creará automáticamente como <strong>"Solicitado"</strong> 
                     y el pago como <strong>"Pendiente"</strong>. Recibirás un enlace de seguimiento único.
                 </p>
             </div>

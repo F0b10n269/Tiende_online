@@ -136,7 +136,7 @@
     <header>
         <div class="container">
             <nav>
-                <div class="logo">🎨 Personalizados</div>
+                <div class="logo"> Personalizados</div>
                 <ul class="nav-links">
                     <li><a href="{% url 'tienda:index' %}">Inicio</a></li>
                     <li><a href="{% url 'tienda:catalogo' %}">Catálogo</a></li>
@@ -150,7 +150,7 @@
         <!-- En templates/tienda/base.html, después del header -->
 <main>
     <div class="container">
-        <!-- ✅ AGREGAR ESTO PARA MOSTRAR MENSAJES -->
+        <!--  AGREGAR ESTO PARA MOSTRAR MENSAJES -->
         {% if messages %}
         <div class="mensajes">
             {% for message in messages %}
