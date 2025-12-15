@@ -45,6 +45,7 @@ class Insumo(models.Model):
     cantidad_disponible = models.IntegerField()
     unidad = models.CharField(max_length=20, choices=TIPOS_UNIDAD, default='unidades')
     
+    # ✅ AGREGAR ESTOS CAMPOS NUEVOS:
     marca = models.CharField(
         max_length=50, 
         blank=True, 
@@ -169,6 +170,7 @@ class Pedido(models.Model):
         return int(round(total))
     
     def save(self, *args, **kwargs):
+        # ✅ Asegurar token de seguimiento SIN UUID
         if not self.token_seguimiento:
             # Generar token simple de 10 caracteres (ej: "AbC123DeFg")
             self.token_seguimiento = secrets.token_urlsafe(10)[:10]
