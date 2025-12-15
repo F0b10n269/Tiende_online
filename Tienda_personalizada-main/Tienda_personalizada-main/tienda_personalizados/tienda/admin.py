@@ -86,8 +86,8 @@ class InsumoAdmin(admin.ModelAdmin):
             'fields': (
                 'nombre',
                 'tipo',
-                'marca',      # ✅ NUEVO
-                'color',      # ✅ NUEVO
+                'marca',      
+                'color',      
             )
         }),
         ('Control de Inventario', {

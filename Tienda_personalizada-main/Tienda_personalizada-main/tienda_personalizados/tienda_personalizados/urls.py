@@ -9,7 +9,7 @@ from rest_framework.routers import DefaultRouter
 router = DefaultRouter()
 router.register(r'insumos',InsumoViewSet,basename='insumo')
 
-router = DefaultRouter() #cuando se añade un nuevo viewset en al momento de registrarlo debe ser router.register de otra forma te dara error al haberse creado otro puerto
+#cuando se añade un nuevo viewset en al momento de registrarlo debe ser router.register de otra forma te dara error al haberse creado otro puerto
 router.register(r'pedidos',PedidoViewSet, basename='pedido') #si aun te da error borra el defaultrouter dejando solo 1
 
 urlpatterns = [

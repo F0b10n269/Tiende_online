@@ -8,7 +8,7 @@ from .serializers import InsumoSerializer, PedidoSerializer
 from .models import Insumo
 from rest_framework import status
 from rest_framework.decorators import api_view
-from rest_framework import viewsets, mixins
+from rest_framework import viewsets, mixins, generics
 
 from .models import Producto, Categoria, Pedido
 from .forms import SolicitudPedidoForm
@@ -197,10 +197,7 @@ class InsumoViewSet(viewsets.ModelViewSet):
     queryset = Insumo.objects.all()
     serializer_class = InsumoSerializer
 
-class PedidoViewSet(
-    mixins.ListModelMixin,
-    mixins.RetrieveModelMixin,
-    viewsets.GenericViewSet
-    ):
+
+class PedidoViewSet(viewsets.ModelViewSet):
     queryset = Pedido.objects.all()
     serializer_class = PedidoSerializer
