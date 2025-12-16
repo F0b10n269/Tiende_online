@@ -1,12 +1,12 @@
 from django.urls import path
 from . import views
 
-# Nombre del espacio de nombres para usar en templates como {% url 'tienda:index' %}
+# Nombre de la app para utilizar los api
 app_name = 'tienda' 
 
 urlpatterns = [
-    # --- Rutas para las Vistas (Frontend) ---
-    # Usamos las funciones que definiste en views.py
+    #rutas para las views
+    #las funciones que definimos en views.py
     path('', views.index, name='index'),
     path('catalogo/', views.catalogo, name='catalogo'),
     path('producto/<int:pk>/', views.detalle_producto, name='detalle_producto'),
