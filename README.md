@@ -4,6 +4,12 @@ Instalar en CMD:
 
 -pillow
 
+-gunicorn
+
+-whitenoise
+
+-dj-database-url psycopg2-binary
+
 y luego tambien en el CMD, hacer las migraciones:
 
 -python manage.py makemigrations
