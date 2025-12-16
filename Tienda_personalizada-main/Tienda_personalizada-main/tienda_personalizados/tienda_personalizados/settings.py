@@ -119,18 +119,19 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 STATICFILES_DIRS = [
-    os.path.join(BASE_DIR, "static")
+    os.path.join(BASE_DIR, "static"),
+    os.path.join(BASE_DIR, "media")
     ]
 
 STATIC_ROOT = os.path.join(BASE_DIR,'staticfiles')
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
-WHITENOISE_KEEP_OLD_FILES = True
-WHITENOISE_ADD_HEADERS_FUNCTION = None
-WHITENOISE_AUTOREFRESH = True
-WHITENOISE_IMMUTABLE_FILE_TEST = None
-WHITENOISE_USE_FINDERS = True 
-WHITENOISE_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+#WHITENOISE_KEEP_OLD_FILES = True
+#WHITENOISE_ADD_HEADERS_FUNCTION = None
+#WHITENOISE_AUTOREFRESH = True
+#WHITENOISE_IMMUTABLE_FILE_TEST = None
+#WHITENOISE_USE_FINDERS = True 
+#WHITENOISE_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
