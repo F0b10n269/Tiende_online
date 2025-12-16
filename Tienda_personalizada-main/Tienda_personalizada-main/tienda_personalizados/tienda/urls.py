@@ -1,25 +1,16 @@
-from django.contrib import admin
-from django.urls import path, include
-from django.conf import settings
-from django.conf.urls.static import static
-from tienda.views import InsumoViewSet, PedidoViewSet, filtro_pedidos
-from rest_framework.routers import DefaultRouter
+from django.urls import path
+from . import views
 
-
-router = DefaultRouter()
-router.register(r'insumos',InsumoViewSet,basename='insumo')
-
-#cuando se añade un nuevo viewset en al momento de registrarlo debe ser router.register de otra forma te dara error al haberse creado otro puerto
-router.register(r'pedidos',PedidoViewSet, basename='pedido') #si aun te da error borra el defaultrouter dejando solo 1
+# Nombre del espacio de nombres para usar en templates como {% url 'tienda:index' %}
+app_name = 'tienda' 
 
 urlpatterns = [
-    path('admin/', admin.site.urls),
-    path('', include('tienda.urls')),
-    path('api/pedidos/filtrar/', filtro_pedidos, name='api-filtro-pedidos'),
-    path('api/',include(router.urls)),
-
-    
+    # --- Rutas para las Vistas (Frontend) ---
+    # Usamos las funciones que definiste en views.py
+    path('', views.index, name='index'),
+    path('catalogo/', views.catalogo, name='catalogo'),
+    path('producto/<int:pk>/', views.detalle_producto, name='detalle_producto'),
+    path('solicitar/', views.solicitar_pedido, name='solicitar_pedido'),
+    path('pedido-exitoso/', views.pedido_exitoso, name='pedido_exitoso'),
+    path('seguimiento/<str:token>/', views.seguimiento_pedido, name='seguimiento_pedido'),
 ]
-
-if settings.DEBUG:
-    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
