@@ -130,7 +130,7 @@ WHITENOISE_ADD_HEADERS_FUNCTION = None
 WHITENOISE_AUTOREFRESH = True
 WHITENOISE_IMMUTABLE_FILE_TEST = None
 WHITENOISE_USE_FINDERS = True 
-WHITENOISE_ROOT = os.path.join(BASE_DIR, 'media')
+WHITENOISE_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
