@@ -33,7 +33,7 @@
             <div>
                 <h1 style="margin-bottom: 1rem;">{{ producto.nombre }}</h1>
                 <p style="color: #667eea; font-weight: bold; font-size: 1.5rem; margin-bottom: 1rem;">
-                    ${{ producto.precio_base }}
+                    ${{ producto.precio_base|floatformat:"0"}}
                 </p>
                 <p style="color: #666; margin-bottom: 1rem;">
                     <strong>Categoría:</strong> {{ producto.categoria.nombre }}

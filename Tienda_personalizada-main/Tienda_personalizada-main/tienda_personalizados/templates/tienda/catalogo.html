@@ -62,7 +62,7 @@
         {% endif %}
         <h3>{{ producto.nombre }}</h3>
         <p style="color: #667eea; font-weight: bold; font-size: 1.2rem; margin: 0.5rem 0;">
-            ${{ producto.precio_base }}
+            ${{ producto.precio_base|floatformat:"0" }}
         </p>
         <p style="color: #666; margin-bottom: 1rem;">
             {{ producto.descripcion|truncatewords:20 }}
