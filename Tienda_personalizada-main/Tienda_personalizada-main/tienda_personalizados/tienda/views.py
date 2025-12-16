@@ -6,7 +6,8 @@ from django.db.models import Q
 from django.contrib import messages
 from .serializers import InsumoSerializer, PedidoSerializer
 from .models import Insumo
-from rest_framework import status
+from rest_framework import status ,request
+from rest_framework.response import Response #se añadio el response para que funcione el filtro 
 from rest_framework.decorators import api_view
 from rest_framework import viewsets, mixins, generics
 
@@ -198,6 +199,44 @@ class InsumoViewSet(viewsets.ModelViewSet):
     serializer_class = InsumoSerializer
 
 
-class PedidoViewSet(viewsets.ModelViewSet):
+class PedidoViewSet(
+    mixins.CreateModelMixin,
+    mixins.RetrieveModelMixin,
+    mixins.UpdateModelMixin,
+    viewsets.GenericViewSet
+    ):
     queryset = Pedido.objects.all()
     serializer_class = PedidoSerializer
+
+@api_view(['GET'])
+def filtro_pedidos(request):
+    """API que se usa para filtrar los pedidos por rango de fechas, estado y limite de resultado Ruta: /api/pedidos/filtrar/?fecha_inicio=...&fecha_fin=...&estado=...&limite=..."""
+#los diferentes criterios del filtro
+    pedidos = Pedido.objects.all()
+    fecha_inicio = request.GET.get('fecha_inicio')
+    fecha_fin = request.GET.get('fecha_fin')
+    estados_str = request.GET.get('estado_pedido')
+    limite = request.GET.get('limite')
+
+#filtrar por rango de fechas (usando fecha_creacion)
+    if fecha_inicio and fecha_fin:
+       pedidos = pedidos.filter(fecha_creacion_date_range=[fecha_inicio, fecha_fin])
+
+#filtrar por estados (acepta multiples estados separados por comas)
+    if estados_str:
+       estados_list = [e.strip() for e in estados_str.split(',')]
+       pedidos = pedidos.filter(estado_pedido__in=estados_list)
+
+#Limitar resultados de busqueda
+
+    if limite and limite.isdigit():
+        pedidos = pedidos[:int(limite)]
+
+
+#seralizar y retornar usando PedidoSealizer
+    serializer = PedidoSerializer(pedidos, many=True)
+    return Response(serializer.data, status=status.HTTP_200_OK)
+
+#ejemplos de filtros
+#filtro de limite(o cantidad): http://127.0.0.1:8000/api/pedidos/filtrar/?limite=2
+#filtro de estado: http://127.0.0.1:8000/api/pedidos/filtrar/?estado_pedido=finalizado
