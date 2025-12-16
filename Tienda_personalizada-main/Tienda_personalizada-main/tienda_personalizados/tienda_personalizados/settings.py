@@ -126,6 +126,16 @@ STATICFILES_DIRS = [
 STATIC_ROOT = os.path.join(BASE_DIR,'staticfiles')
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
+STORAGES = {
+    'staticfiles': {
+        'BACKEND': 'whitenoise.storage.CompressedManifestStaticFilesStorage',
+        'PREPEND_STATIC_URL': True,
+    },
+    'default': {
+        'BACKEND': 'django.core.files.storage.FileSystemStorage',
+    }
+}
+
 #WHITENOISE_KEEP_OLD_FILES = True
 #WHITENOISE_ADD_HEADERS_FUNCTION = None
 #WHITENOISE_AUTOREFRESH = True
