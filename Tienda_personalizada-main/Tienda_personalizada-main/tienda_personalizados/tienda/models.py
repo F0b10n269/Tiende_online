@@ -21,9 +21,9 @@ class Producto(models.Model):
     categoria = models.ForeignKey(Categoria, on_delete=models.CASCADE)
     precio_base = models.DecimalField(max_digits=10, decimal_places=2)
     activo = models.BooleanField(default=True)
-    imagen_1 = models.ImageField(upload_to='static/media/productos/', blank=True, null=True)
-    imagen_2 = models.ImageField(upload_to='static/media/productos/', blank=True, null=True)
-    imagen_3 = models.ImageField(upload_to='static/media/productos/', blank=True, null=True)
+    imagen_1 = models.ImageField(upload_to='static/productos/', blank=True, null=True)
+    imagen_2 = models.ImageField(upload_to='static/productos/', blank=True, null=True)
+    imagen_3 = models.ImageField(upload_to='static/productos/', blank=True, null=True)
     
     class Meta:
         verbose_name = "Producto"
