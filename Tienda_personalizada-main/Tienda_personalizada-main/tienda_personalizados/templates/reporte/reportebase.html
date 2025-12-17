@@ -1,0 +1,251 @@
+{% extends 'tienda/base.html' %} 
+{% load humanize %}
+
+
+{% block title %}Reporte del Sistema{% endblock %}
+
+
+
+
+{% block content %}
+
+{{ pedidos_por_estado|json_script:"pedidos-estado-data" }}
+{{ pedidos_por_plataforma|json_script:"pedidos-plataforma-data" }}
+
+<div class="container my-5">
+    <h1 class="mb-4">📊 Reporte Dinámico del Sistema</h1>
+    <p class="lead">Filtra los datos para obtener métricas sobre pedidos, estados y plataformas.</p>
+
+    <div class="card shadow-sm mb-5">
+        <div class="card-header bg-light">
+            <h5 class="mb-0">Filtros de Reporte</h5>
+        </div>
+        <div class="card-body">
+            <form method="get" class="row g-3">
+                
+                {# Campos de Fecha de Inicio y Fin #}
+                <div class="col-md-3">
+                    <label for="{{ filtro.form.fecha_inicio.id_for_label }}" class="form-label">Fecha Inicio</label>
+                    {{ filtro.form.fecha_inicio }}
+                </div>
+                <div class="col-md-3">
+                    <label for="{{ filtro.form.fecha_fin.id_for_label }}" class="form-label">Fecha Fin</label>
+                    {{ filtro.form.fecha_fin }}
+                </div>
+                
+                {# Campo de Plataforma #}
+                <div class="col-md-3">
+                    <label for="{{ filtro.form.plataforma.id_for_label }}" class="form-label">Plataforma</label>
+                    {{ filtro.form.plataforma }}
+                </div>
+                
+                {# Botón de Aplicar Filtro #}
+                <div class="col-md-3 d-flex align-items-end">
+                    <button type="submit" class="btn btn-primary w-100">Aplicar Filtros</button>
+                    {# Opcional: Botón para borrar los filtros #}
+                    <a href="{% url 'tienda:reporte' %}" class="btn btn-outline-secondary ms-2">Limpiar</a>
+                </div>
+                
+                {# Campos de Estado (Checkbox) - Se recomienda ponerlos fuera del layout de columna simple #}
+                <div class="col-12 mt-3">
+                    <label class="form-label">Estados de Pedido:</label>
+                    <div class="form-check d-flex flex-wrap">
+                        {% for choice in filtro.form.estado %}
+                            <div class="me-4">{{ choice }}</div>
+                        {% endfor %}
+                    </div>
+                </div>
+                
+            </form>
+        </div>
+    </div>
+    
+    <div class="row mb-5">
+        <div class="col-md-6">
+            <div class="p-3 bg-light rounded shadow-sm">
+                <h5>Pedidos Filtrados</h5>
+                <h2 class="text-primary">{{ total_pedidos_filtrados }}</h2>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="p-3 bg-light rounded shadow-sm">
+                <h5>Valor Aprobado Total</h5>
+                <h2 class="text-success">${{ total_valor_aprobado|intcomma|floatformat:0 }}</h2>
+                <p class="text-muted small">Monto de pedidos en estado 'aprobado'.</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        
+        <div class="col-lg-6">
+            <div class="card mb-4 shadow-sm">
+                <div class="card-header bg-info text-white">
+                    Pedidos por Estado y Plataforma (Gráfico)
+                </div>
+                <div class="card-body">
+                    <canvas id="chartPedidosEstado"></canvas>
+                    <hr>
+                    <canvas id="chartPedidosPlataforma"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-6">
+            
+            <div class="card mb-4 shadow-sm">
+                <div class="card-header">
+                    🏆 Top 5 Productos Más Solicitados
+                </div>
+                <div class="card-body">
+                    <table class="table table-striped table-hover">
+                        <thead>
+                            <tr>
+                                <th>Producto</th>
+                                <th class="text-end">Cantidad</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for item in productos_solicitados %}
+                            <tr>
+                                <td>{{ item.producto_referencia__nombre }}</td>
+                                <td class="text-end">{{ item.conteo }}</td>
+                            </tr>
+                            {% empty %}
+                            <tr><td colspan="2">No hay datos de productos en este filtro.</td></tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="card mb-4 shadow-sm">
+                <div class="card-header">
+                    Detalle de Pedidos por Estado
+                </div>
+                <div class="card-body">
+                    <table class="table table-striped table-hover">
+                        <thead>
+                            <tr>
+                                <th>Estado</th>
+                                <th class="text-end">Total</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for item in pedidos_por_estado %}
+                            <tr>
+                                <td>{{ item.estado_pedido|capfirst }}</td>
+                                <td class="text-end">{{ item.conteo }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // 1. Envolver todo en la función de carga de la página
+    window.onload = function() {
+
+        const estadoElement = document.getElementById('pedidos-estado-data');
+        const plataformaElement = document.getElementById('pedidos-plataforma-data');
+
+        // Si los elementos no existen (o están vacíos), detenemos la ejecución
+        if (!estadoElement || !plataformaElement) {
+             console.error("No se encontraron los scripts de datos para los gráficos.");
+             return;
+        }
+        
+        // Convertimos los QuerySets de Django a arrays de JavaScript
+       const dataPedidosEstado = JSON.parse(estadoElement.textContent);
+       const dataPedidosPlataforma = JSON.parse(plataformaElement.textContent);
+       console.log('Datos Estado:', dataPedidosEstado);
+       console.log('Datos Plataforma:', dataPedidosPlataforma);
+
+        // Función auxiliar para obtener labels y data de un array
+        function extractChartData(dataList, labelKey, dataKey) {
+            return {
+                labels: dataList.map(item => item[labelKey].charAt(0).toUpperCase() + item[labelKey].slice(1).replace('_', ' ')),
+                data: dataList.map(item => item[dataKey])
+            };
+        }
+
+        
+        // GRÁFICO 1: PEDIDOS POR ESTADO
+        
+        const { labels: labelsEstado, data: dataEstado } = extractChartData(dataPedidosEstado, 'estado_pedido', 'conteo');
+
+        // Solo dibuja si existen elementos
+        if (document.getElementById('chartPedidosEstado')) {
+             new Chart(document.getElementById('chartPedidosEstado'), {
+                type: 'bar',
+                data: {
+                    labels: labelsEstado,
+                    datasets: [{
+                        label: 'Pedidos por Estado',
+                        data: dataEstado,
+                        backgroundColor: [
+                            'rgba(255, 99, 132, 0.7)', 
+                            'rgba(54, 162, 235, 0.7)', 
+                            'rgba(255, 206, 86, 0.7)', 
+                            'rgba(75, 192, 192, 0.7)', 
+                            'rgba(153, 102, 255, 0.7)', 
+                            'rgba(255, 159, 64, 0.7)', 
+                        ],
+                        borderColor: 'rgba(0, 0, 0, 0.1)',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: { y: { beginAtZero: true } },
+                    plugins: { title: { display: true, text: 'Conteo de Pedidos por su Estado Actual' } }
+                }
+            });
+        }
+       
+
+        
+        // GRÁFICO 2: PEDIDOS POR PLATAFORMA
+        
+        const { labels: labelsPlataforma, data: dataPlataforma } = extractChartData(dataPedidosPlataforma, 'plataforma', 'conteo');
+
+        // Solo dibuja si existen elementos
+        if (document.getElementById('chartPedidosPlataforma')) {
+            new Chart(document.getElementById('chartPedidosPlataforma'), {
+                type: 'pie', 
+                data: {
+                    labels: labelsPlataforma,
+                    datasets: [{
+                        label: 'Pedidos por Plataforma',
+                        data: dataPlataforma,
+                        backgroundColor: [
+                            '#36A2EB', 
+                            '#FF6384', 
+                            '#4BC0C0', 
+                            '#FFCE56', 
+                            '#9966FF', 
+                            '#FF9933'  
+                        ],
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: { title: { display: true, text: 'Distribución de Pedidos por Plataforma de Origen' } }
+                }
+            });
+        }
+
+        // Opcional: Función para incluir separador de miles en los números grandes
+        function intcomma(x) {
+            return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+        }
+    } // Cierra window.onload
+</script>
+{% endblock %}

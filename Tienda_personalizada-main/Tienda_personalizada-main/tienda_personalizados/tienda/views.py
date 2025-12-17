@@ -1,15 +1,17 @@
 from django.shortcuts import render, get_object_or_404, redirect
-from django.views.generic import ListView, DetailView
+from django.views.generic import ListView, DetailView, TemplateView
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.views.generic.edit import CreateView
 from django.urls import reverse_lazy
-from django.db.models import Q
+from django.db.models import Q, Count, Sum
 from django.contrib import messages
 from .serializers import InsumoSerializer, PedidoSerializer
-from .models import Insumo
+from .models import Insumo, Pedido, Producto
 from rest_framework import status ,request
 from rest_framework.response import Response #se añadio el response para que funcione el filtro 
 from rest_framework.decorators import api_view
 from rest_framework import viewsets, mixins, generics
+from .filters import PedidoFilter
 
 from .models import Producto, Categoria, Pedido
 from .forms import SolicitudPedidoForm
@@ -240,3 +242,41 @@ def filtro_pedidos(request):
 #ejemplos de filtros
 #filtro de limite(o cantidad): http://127.0.0.1:8000/api/pedidos/filtrar/?limite=2
 #filtro de estado: http://127.0.0.1:8000/api/pedidos/filtrar/?estado_pedido=finalizado
+
+class ReporteView(LoginRequiredMixin, TemplateView):
+    template_name = 'reporte/reportebase.html'
+    
+    def get_context_data(self, **kwargs):
+        
+        context = super().get_context_data(**kwargs)
+        
+        filtro = PedidoFilter(self.request.GET, queryset=Pedido.objects.all())
+        pedidos_filtrados = filtro.qs
+
+        pedidos_por_estado = list(Pedido.objects.values('estado_pedido').annotate(
+            conteo=Count('id')
+        ).order_by('-conteo')
+        )
+
+        pedidos_por_plataforma = list(Pedido.objects.values('plataforma').annotate(
+            conteo=Count('id'))
+        )
+
+        productos_solicitados = pedidos_filtrados.values(
+        'producto_referencia__nombre'
+        ).annotate(
+        conteo=Count('producto_referencia')
+        ).exclude(producto_referencia__nombre__isnull=True).order_by('-conteo')[:5]
+
+        total_aprobado = pedidos_filtrados.filter(estado_pedido='aprobado').aggregate(
+           total=Sum('presupuesto_aprobado')
+           )['total'] or 0
+        
+        context['filtro'] = filtro
+        context['pedidos_por_estado'] = pedidos_por_estado
+        context['pedidos_por_plataforma'] = pedidos_por_plataforma
+        context['productos_solicitados'] = productos_solicitados
+        context['total_pedidos_filtrados'] = pedidos_filtrados.count()
+        context['total_valor_aprobado'] = total_aprobado
+    
+        return context

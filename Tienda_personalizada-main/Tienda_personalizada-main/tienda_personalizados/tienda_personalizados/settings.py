@@ -15,7 +15,7 @@ TEMPLATES_DIRS = os.path.join(BASE_DIR, 'templates')
 SECRET_KEY = 'django-insecure-wn=_-c*+9ezsz8vk@$#iywdq%6$j))b817%7%f0kb&pkma==w1'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 
 ALLOWED_HOSTS = ['127.0.0.1',
                  'localhost',
@@ -34,8 +34,10 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django.contrib.humanize',
     'rest_framework',
-    'tienda'  
+    'tienda',
+    'django_filters'  
 ]
 
 MIDDLEWARE = [

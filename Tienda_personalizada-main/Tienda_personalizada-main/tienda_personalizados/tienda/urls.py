@@ -1,4 +1,5 @@
 from django.urls import path
+from .views import ReporteView
 from . import views
 
 # Nombre de la app para utilizar los api
@@ -13,4 +14,5 @@ urlpatterns = [
     path('solicitar/', views.solicitar_pedido, name='solicitar_pedido'),
     path('pedido-exitoso/', views.pedido_exitoso, name='pedido_exitoso'),
     path('seguimiento/<str:token>/', views.seguimiento_pedido, name='seguimiento_pedido'),
+    path('reporte/', views.ReporteView.as_view(), name='reporte')
 ]

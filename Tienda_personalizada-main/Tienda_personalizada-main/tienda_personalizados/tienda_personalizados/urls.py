@@ -14,6 +14,7 @@ router.register(r'pedidos', PedidoViewSet, basename='pedido')
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path('accounts/', include('django.contrib.auth.urls')),
 
     # 1. Rutas de la API
     # Primero ee mapeo el filtro para que no cause conflictos con el resto de las api
