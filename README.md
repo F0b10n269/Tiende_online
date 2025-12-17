@@ -8,6 +8,8 @@ Instalar en CMD:
 
 -whitenoise
 
+-djangorestframework
+
 -dj-database-url psycopg2-binary
 
 y luego tambien en el CMD, hacer las migraciones:
